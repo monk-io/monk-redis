@@ -1,0 +1,59 @@
+namespace: monk-redis
+
+rds: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_port:
+      type: int
+      value: <- `${redis_port}`
+    rds_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: <- `${redis_disable_commands}`
+    rds_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: <- `${redis_empty_password}`
+    rds_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: <- `${redis_io_thread}`
+    rds_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: <- `${redis_io_threads_do_reads}`
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+  containers:
+    monk-rds:
+      paths:
+        - <- `${volume_data}/mysql:/bitnami/redis/data`
+      ports:
+        - <- `0.0.0.0:${rds_port}:6379`
+      image: bitnami/redis
+  version: 1.0
+  metadata:
+    defines: metadata
+    tags: database
+    website: https://www.mysql.com/
+    email: burakhanozyol@gmail.com
+    name: MySQL
+    publisher: Monk Builders Team
+
+stack:
+  defines: process-group
+  runnable-list:
+    -  monk-redis/rds
+  variables:
+    redis_image_tag: "latest"
+    redis_port: 6389
+    redis_disable_commands: FLUSHDB,FLUSHALL,CONFIG 
+    redis_password: 123
+    redis_empty_password: yes
+    redis_io_thread: 1
+    redis_io_threads_do_reads: yes
+    

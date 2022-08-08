@@ -1,0 +1,22 @@
+namespace: monk-redis
+
+stack:
+  defines: process-group
+  runnable-list:
+    -  monk-redis/rds-1
+    -  monk-redis/rds-2
+    -  monk-redis/rds-3
+  variables:
+    redis_image_tag: "7.0"
+    redis1_port: 6388
+    redis2_port: 6389
+    redis3_port: 6387
+    redis_disable_commands: FLUSHALL 
+    redis_password: bitnami
+    redis_empty_password: no
+    redis_io_thread: 1
+    redis_io_threads_do_reads: yes
+    redis_nodes_list: 
+      type: string
+      value: <- get-hostname("monk-redis/rds-1", "monk-rds1") split(".dns.podman") join("") " " get-hostname("monk-redis/rds-2", "monk-rds2") split(".dns.podman") join("") " " get-hostname("monk-redis/rds-3", "monk-rds3") split(".dns.podman") join("") concat-all 
+    #redis_nodes_list: <- get-hostname("monk-redis/rds-1", "monk-rds1") split(".dns.podman") join("")

@@ -1,0 +1,2 @@
+REPO redis
+LOAD redis.yml

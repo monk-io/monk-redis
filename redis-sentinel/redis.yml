@@ -1,0 +1,111 @@
+namespace: monk-redis
+
+rds-1: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_port:
+      type: int
+      value: <- `${redis1_port}`
+    rds_dns: 
+      env: REDIS_CLUSTER_SLEEP_BEFORE_DNS_LOOKUP
+      type: int
+      value: 120 
+    rds_password:
+      env: REDIS_PASSWORD
+      type: string
+      value: <- `${redis_password}`
+    rds_nodes:
+      env: REDIS_NODES
+      type: string
+      value: <- `${redis_nodes_list}`
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+  containers:
+    monk-rds1:
+      ports:
+        - <- `0.0.0.0:${rds_port}:6379`
+      image: bitnami/redis-cluster:7.0
+  version: 1.0
+
+rds-2: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_port:
+      type: int
+      value: <- `${redis2_port}`
+    rds_dns: 
+      env: REDIS_CLUSTER_SLEEP_BEFORE_DNS_LOOKUP
+      type: int
+      value: 120
+    rds_password:
+      env: REDIS_PASSWORD
+      type: string
+      value: <- `${redis_password}`
+    rds_nodes:
+      env: REDIS_NODES
+      type: string
+      value: <- `${redis_nodes_list}` 
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+  containers:
+    monk-rds2:
+      ports:
+        - <- `0.0.0.0:${rds_port}:6379`
+      image: bitnami/redis-cluster:7.0
+  version: 1.0
+
+rds-3: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_port:
+      type: int
+      value: <- `${redis3_port}`
+    rds_dns: 
+      env: REDIS_CLUSTER_SLEEP_BEFORE_DNS_LOOKUP
+      type: int
+      value: 120
+    rds_password:
+      env: REDIS_PASSWORD
+      type: string
+      value: <- `${redis_password}`
+    rds_cli_password:
+      env: REDISCLI_AUTH
+      type: string
+      value: <- `${redis_password}`
+    rds_nodes:
+      env: REDIS_NODES
+      type: string
+      value: <- `${redis_nodes_list}` 
+    rds_create:
+      env: REDIS_CLUSTER_CREATOR
+      type: string
+      value: yes
+    rds_cluster_replicates:
+      env: REDIS_CLUSTER_REPLICAS
+      type: int
+      value: 1
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+  containers:
+    monk-rds3:
+      ports:
+        - <- `0.0.0.0:${rds_port}:6379`
+      image: bitnami/redis-cluster:7.0
+  depends:
+    wait-for:
+      runnables:
+        - monk-redis/rds-1
+        - monk-redis/rds-2
+  version: 1.0
