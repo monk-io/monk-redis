@@ -3,9 +3,10 @@ namespace: monk-redis-cluster
 stack:
   defines: process-group
   runnable-list:
-    -  monk-redis-cluster/rds-1
-    -  monk-redis-cluster/rds-2
-    -  monk-rediscluster/rds-3
+    - monk-redis-cluster/rds1
+    - monk-redis-cluster/rds2
+    - monk-redis-cluster/rds3
+    - monk-redis-cluster/sentinel1
   variables:
     redis_image_tag: "7.0"
     redis1_port: 6388
@@ -18,5 +19,5 @@ stack:
     redis_io_threads_do_reads: yes
     redis_nodes_list: 
       type: string
-      value: <- get-hostname("monk-redis/rds-1", "monk-rds1") split(".dns.podman") join("") " " get-hostname("monk-redis/rds-2", "monk-rds2") split(".dns.podman") join("") " " get-hostname("monk-redis/rds-3", "monk-rds3") split(".dns.podman") join("") concat-all 
+      value: <- get-hostname("monk-redis-cluster/rds1", "monk-rds1") split(".dns.podman") join("") " " get-hostname("monk-redis/rds2", "monk-rds2") split(".dns.podman") join("") " " get-hostname("monk-redis/rds23", "monk-rds3") split(".dns.podman") join("") concat-all 
     #redis_nodes_list: <- get-hostname("monk-redis/rds-1", "monk-rds1") split(".dns.podman") join("")

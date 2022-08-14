@@ -1,0 +1,212 @@
+namespace: monk-redis-cluster
+
+rds1: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_port:
+      type: int
+      value: <- `${redis1_port}`
+    rds_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: <- `${redis_disable_commands}`
+    rds_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: <- `${redis_empty_password}`
+    rds_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: <- `${redis_io_thread}`
+    rds_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: <- `${redis_io_threads_do_reads}`
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+  containers:
+    monk-rds1:
+      paths:
+        - <- `${volume_data}/redis1:/bitnami/redis/data`
+      ports:
+        - <- `0.0.0.0:${rds_port}:6379`
+      image: redis
+  version: 1.0
+
+
+rds2: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_port:
+      type: int
+      value: <- `${redis2_port}`
+    rds_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: <- `${redis_disable_commands}`
+    rds_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: <- `${redis_empty_password}`
+    rds_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: <- `${redis_io_thread}`
+    rds_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: <- `${redis_io_threads_do_reads}`
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+    rds_master:
+      env: REDIS_MASTER
+      value: <- get-hostname("monk-redis-cluster/rds1", "monk-rds1")  split(".dns.podman") join("")
+  containers:
+    monk-rds2:
+      paths:
+        - <- `${volume_data}/redis2:/bitnami/redis/data`
+      ports:
+        - <- `0.0.0.0:${rds_port}:6379`
+      image: redis
+      #bash: sleep 3600
+      bash: <- `redis-server --slaveof ${rds_master} 6379`
+  depends:
+    wait-for:
+      runnables:
+        - monk-redis-cluster/rds1
+      timeout: 30
+  version: 1.0
+
+rds3: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_port:
+      type: int
+      value: <- `${redis3_port}`
+    rds_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: <- `${redis_disable_commands}`
+    rds_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: <- `${redis_empty_password}`
+    rds_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: <- `${redis_io_thread}`
+    rds_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: <- `${redis_io_threads_do_reads}`
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+    rds_master:
+      env: REDIS_MASTER
+      value: <- get-hostname("monk-redis-cluster/rds1", "monk-rds1")  split(".dns.podman") join("")
+  containers:
+    monk-rds3:
+      paths:
+        - <- `${volume_data}/redis3:/bitnami/redis/data`
+      ports:
+        - <- `0.0.0.0:${rds_port}:6379`
+      image: redis
+      #bash: sleep 3600
+      bash: <- `redis-server --slaveof ${rds_master} 6379`
+  depends:
+    wait-for:
+      runnables:
+        - monk-redis-cluster/rds1
+      timeout: 30
+  version: 1.0
+
+sentinel1: 
+  defines: runnable
+  variables:
+    image_tag:
+      type: string
+      value: <- `${redis_image_tag}`
+    rds_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: <- `${redis_disable_commands}`
+    rds_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: <- `${redis_empty_password}`
+    rds_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: <- `${redis_io_thread}`
+    rds_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: <- `${redis_io_threads_do_reads}`
+    rds_sentinel_quorum:
+      env: SENTINEL_QUORUM
+      value: 2
+      type: string
+    rds_sentinel_down_after:
+      env: SENTINEL_DOWN_AFTER
+      value: 5000
+      type: string
+    rds_sentinel_failover:
+      env: SENTINEL_FAILOVER
+      value: 10000
+      type: string
+    rds_sentinel_port:
+      env: SENTINEL_FAILOVER
+      value: 26000
+      type: string
+    rds_master:
+      env: REDIS_MASTER
+      value: <- get-hostname("monk-redis-cluster/rds1", "monk-rds1")  split(".dns.podman") join("")
+    volume_data:
+      type: string
+      value: <- `${monk-volume-path}/redis`
+  containers:
+    monk-rds-sentinel-1:
+      paths:
+        - <- `${volume_data}/sentinel:/bitnami/redis/data`
+      bash: redis-server /etc/redis/sentinel.conf --sentinel
+      image: redis
+  depends:
+    wait-for:
+      runnables:
+        - monk-redis-cluster/rds1
+      timeout: 30
+  version: 1.0
+  files:
+    defines: files
+    sentinel_conf:
+      contents: |
+        port 26379
+        dir /tmp
+        sentinel resolve-hostnames yes
+        sentinel monitor mymaster {{ v "rds_master"}} 6379 {{ v "rds_sentinel_quorum"}}
+        sentinel down-after-milliseconds mymaster {{ v "rds_sentinel_down_after"}}
+        sentinel parallel-syncs mymaster 1
+        sentinel failover-timeout mymaster {{ v "rds_sentinel_failover"}}
+      container: monk-rds-sentinel-1
+      path: /etc/redis/sentinel.conf
+      mode: 777
+    entrypoint_sh:
+      raw: true
+      contents: |
+        docker-entrypoint.sh redis-server /etc/redis/sentinel.conf --sentinel
+      container: monk-rds-sentinel-1
+      path: /usr/local/bin/entrypoint.sh
+      mode: 755
+
