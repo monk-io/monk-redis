@@ -1,6 +1,13 @@
 namespace: monk-redis
 
 rds: 
+  metadata:
+    defines: metadata
+    name: Redis
+    description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
+    website: https://redis.io
+    publisher: monk.io
+    icon: redis.png
   defines: runnable
   variables:
     image_tag:

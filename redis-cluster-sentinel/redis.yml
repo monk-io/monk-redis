@@ -1,6 +1,13 @@
 namespace: monk-redis-cluster
 
-rds1: 
+rds1:
+  metadata:
+    defines: metadata
+    name: Redis
+    description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
+    website: https://redis.io
+    publisher: monk.io
+    icon: redis.png
   defines: runnable
   variables:
     image_tag:
@@ -39,6 +46,13 @@ rds1:
 
 
 rds2: 
+  metadata:
+    defines: metadata
+    name: Redis
+    description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
+    website: https://redis.io
+    publisher: monk.io
+    icon: redis.png
   defines: runnable
   variables:
     image_tag:
@@ -86,6 +100,13 @@ rds2:
   version: 1.0
 
 rds3: 
+  metadata:
+    defines: metadata
+    name: Redis
+    description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
+    website: https://redis.io
+    publisher: monk.io
+    icon: redis.png
   defines: runnable
   variables:
     image_tag:
@@ -132,7 +153,14 @@ rds3:
       timeout: 30
   version: 1.0
 
-sentinel1: 
+sentinel1:
+  metadata:
+    defines: metadata
+    name: Sentinel
+    description: High availability for non-clustered Redis
+    website: https://redis.io
+    publisher: monk.io
+    icon: redis.png 
   defines: runnable
   variables:
     image_tag:
