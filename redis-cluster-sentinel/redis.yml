@@ -36,13 +36,18 @@ rds1:
       type: string
       value: <- `${monk-volume-path}/redis`
   containers:
-    monk-rds1:
+    monk-rds:
       paths:
         - <- `${volume_data}/redis1:/bitnami/redis/data`
       ports:
         - <- `0.0.0.0:${rds_port}:6379`
       image: redis
   version: 1.0
+  services:
+    redis-svc:
+      container: monk-rds
+      port: 6379
+      protocol: tcp
 
 
 rds2: 
@@ -54,6 +59,10 @@ rds2:
     publisher: monk.io
     icon: redis.png
   defines: runnable
+  connections:
+    rds1:
+      runnable: monk-redis-cluster/rds1
+      service: redis-svc
   variables:
     image_tag:
       type: string
@@ -82,9 +91,9 @@ rds2:
       value: <- `${monk-volume-path}/redis`
     rds_master:
       env: REDIS_MASTER
-      value: <- get-hostname("monk-redis-cluster/rds1", "monk-rds1")  split(".dns.podman") join("")
+      value: <- connection-hostname("rds1") split(".dns.podman") join("")
   containers:
-    monk-rds2:
+    monk-rds:
       paths:
         - <- `${volume_data}/redis2:/bitnami/redis/data`
       ports:
@@ -98,6 +107,11 @@ rds2:
         - monk-redis-cluster/rds1
       timeout: 30
   version: 1.0
+  services:
+    redis-svc:
+      container: monk-rds
+      port: 6379
+      protocol: tcp
 
 rds3: 
   metadata:
@@ -108,6 +122,10 @@ rds3:
     publisher: monk.io
     icon: redis.png
   defines: runnable
+  connections:
+    rds1:
+      runnable: monk-redis-cluster/rds1
+      service: redis-svc
   variables:
     image_tag:
       type: string
@@ -136,9 +154,9 @@ rds3:
       value: <- `${monk-volume-path}/redis`
     rds_master:
       env: REDIS_MASTER
-      value: <- get-hostname("monk-redis-cluster/rds1", "monk-rds1")  split(".dns.podman") join("")
+      value: <- connection-hostname("rds1") split(".dns.podman") join("")
   containers:
-    monk-rds3:
+    monk-rds:
       paths:
         - <- `${volume_data}/redis3:/bitnami/redis/data`
       ports:
@@ -152,6 +170,11 @@ rds3:
         - monk-redis-cluster/rds1
       timeout: 30
   version: 1.0
+  services:
+    redis-svc:
+      container: monk-rds
+      port: 6379
+      protocol: tcp
 
 sentinel1:
   metadata:
@@ -162,6 +185,16 @@ sentinel1:
     publisher: monk.io
     icon: redis.png 
   defines: runnable
+  connections:
+    rds1:
+      runnable: monk-redis-cluster/rds1
+      service: redis-svc
+    rds2:
+      runnable: monk-redis-cluster/rds2
+      service: redis-svc
+    rds3:
+      runnable: monk-redis-cluster/rds3
+      service: redis-svc
   variables:
     image_tag:
       type: string
@@ -200,12 +233,12 @@ sentinel1:
       type: string
     rds_master:
       env: REDIS_MASTER
-      value: <- get-hostname("monk-redis-cluster/rds1", "monk-rds1")  split(".dns.podman") join("")
+      value: <- connection-hostname("rds1") split(".dns.podman") join("")
     volume_data:
       type: string
       value: <- `${monk-volume-path}/redis`
   containers:
-    monk-rds-sentinel-1:
+    monk-rds-sentinel:
       paths:
         - <- `${volume_data}/sentinel:/bitnami/redis/data`
       bash: redis-server /etc/redis/sentinel.conf --sentinel
@@ -227,14 +260,19 @@ sentinel1:
         sentinel down-after-milliseconds mymaster {{ v "rds_sentinel_down_after"}}
         sentinel parallel-syncs mymaster 1
         sentinel failover-timeout mymaster {{ v "rds_sentinel_failover"}}
-      container: monk-rds-sentinel-1
+      container: monk-rds-sentinel
       path: /etc/redis/sentinel.conf
       mode: 777
     entrypoint_sh:
       raw: true
       contents: |
         docker-entrypoint.sh redis-server /etc/redis/sentinel.conf --sentinel
-      container: monk-rds-sentinel-1
+      container: monk-rds-sentinel
       path: /usr/local/bin/entrypoint.sh
       mode: 755
+  services:
+    redis-svc:
+      container: monk-rds-sentinel
+      port: 6379
+      protocol: tcp
 

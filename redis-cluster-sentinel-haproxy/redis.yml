@@ -1,5 +1,6 @@
 namespace: monk-redis-cluster-haproxy
 
+
 rds1:
   metadata:
     defines: metadata
@@ -7,7 +8,7 @@ rds1:
     description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
     website: https://redis.io
     publisher: monk.io
-    icon: redis.png 
+    icon: redis.png
   defines: runnable
   variables:
     image_tag:
@@ -36,13 +37,18 @@ rds1:
       type: string
       value: <- `${monk-volume-path}/redis`
   containers:
-    monk-rds1:
+    monk-rds:
       paths:
         - <- `${volume_data}/redis1:/bitnami/redis/data`
       ports:
         - <- `0.0.0.0:${rds_port}:6379`
       image: redis
   version: 1.0
+  services:
+    redis-svc:
+      container: monk-rds
+      port: 6379
+      protocol: tcp
 
 
 rds2: 
@@ -54,6 +60,10 @@ rds2:
     publisher: monk.io
     icon: redis.png
   defines: runnable
+  connections:
+    rds1:
+      runnable: monk-redis-cluster-haproxy/rds1
+      service: redis-svc
   variables:
     image_tag:
       type: string
@@ -80,8 +90,11 @@ rds2:
     volume_data:
       type: string
       value: <- `${monk-volume-path}/redis`
+    rds_master:
+      env: REDIS_MASTER
+      value: <- connection-hostname("rds1") split(".dns.podman") join("")
   containers:
-    monk-rds2:
+    monk-rds:
       paths:
         - <- `${volume_data}/redis2:/bitnami/redis/data`
       ports:
@@ -95,6 +108,11 @@ rds2:
         - monk-redis-cluster-haproxy/rds1
       timeout: 30
   version: 1.0
+  services:
+    redis-svc:
+      container: monk-rds
+      port: 6379
+      protocol: tcp
 
 rds3: 
   metadata:
@@ -105,6 +123,10 @@ rds3:
     publisher: monk.io
     icon: redis.png
   defines: runnable
+  connections:
+    rds1:
+      runnable: monk-redis-cluster-haproxy/rds1
+      service: redis-svc
   variables:
     image_tag:
       type: string
@@ -131,8 +153,11 @@ rds3:
     volume_data:
       type: string
       value: <- `${monk-volume-path}/redis`
+    rds_master:
+      env: REDIS_MASTER
+      value: <- connection-hostname("rds1") split(".dns.podman") join("")
   containers:
-    monk-rds3:
+    monk-rds:
       paths:
         - <- `${volume_data}/redis3:/bitnami/redis/data`
       ports:
@@ -146,9 +171,31 @@ rds3:
         - monk-redis-cluster-haproxy/rds1
       timeout: 30
   version: 1.0
+  services:
+    redis-svc:
+      container: monk-rds
+      port: 6379
+      protocol: tcp
 
-sentinel1: 
+sentinel1:
+  metadata:
+    defines: metadata
+    name: Sentinel
+    description: High availability for non-clustered Redis
+    website: https://redis.io
+    publisher: monk.io
+    icon: redis.png 
   defines: runnable
+  connections:
+    rds1:
+      runnable: monk-redis-cluster-haproxy/rds1
+      service: redis-svc
+    rds2:
+      runnable: monk-redis-cluster-haproxy/rds2
+      service: redis-svc
+    rds3:
+      runnable: monk-redis-cluster-haproxy/rds3
+      service: redis-svc
   variables:
     image_tag:
       type: string
@@ -185,11 +232,14 @@ sentinel1:
       env: SENTINEL_FAILOVER
       value: 26000
       type: string
+    rds_master:
+      env: REDIS_MASTER
+      value: <- connection-hostname("rds1") split(".dns.podman") join("")
     volume_data:
       type: string
       value: <- `${monk-volume-path}/redis`
   containers:
-    monk-rds-sentinel-1:
+    monk-rds-sentinel:
       paths:
         - <- `${volume_data}/sentinel:/bitnami/redis/data`
       bash: redis-server /etc/redis/sentinel.conf --sentinel
@@ -211,31 +261,52 @@ sentinel1:
         sentinel down-after-milliseconds mymaster {{ v "rds_sentinel_down_after"}}
         sentinel parallel-syncs mymaster 1
         sentinel failover-timeout mymaster {{ v "rds_sentinel_failover"}}
-      container: monk-rds-sentinel-1
+      container: monk-rds-sentinel
       path: /etc/redis/sentinel.conf
       mode: 777
     entrypoint_sh:
       raw: true
       contents: |
         docker-entrypoint.sh redis-server /etc/redis/sentinel.conf --sentinel
-      container: monk-rds-sentinel-1
+      container: monk-rds-sentinel
       path: /usr/local/bin/entrypoint.sh
       mode: 755
+  services:
+    redis-svc:
+      container: monk-rds-sentinel
+      port: 6379
+      protocol: tcp
 
 haproxy: 
+  connections:
+    rds1:
+      runnable: monk-redis-cluster-haproxy/rds1
+      service: redis-svc
+    rds2:
+      runnable: monk-redis-cluster-haproxy/rds2
+      service: redis-svc
+    rds3:
+      runnable: monk-redis-cluster-haproxy/rds3
+      service: redis-svc
   defines: runnable
   variables:
     haproxy_port:
       type: string
       value: <- `${rds_haproxy_port}`
+    rds_master:
+      value: <- connection-hostname("rds1") split(".dns.podman") join("")
+    rds_slave1:
+      value: <- connection-hostname("rds2") split(".dns.podman") join("")
+    rds_slave2:
+      value: <- connection-hostname("rds3") split(".dns.podman") join("")
   containers:
     monk-rds-haproxy:
       image: haproxy
       ports:
         - <- `0.0.0.0:${haproxy_port}:6379`
         - <- `0.0.0.0:${rds_haproxy_stats_port}:9000`
-      # bash: haproxy -f /etc/haproxy/haproxy.cfg
-      bash: sleep 3600
+      bash: haproxy -f /etc/haproxy/haproxy.cfg
+      # bash: sleep 3600
   depends:
     wait-for:
       runnables:
@@ -277,3 +348,10 @@ haproxy:
       container: monk-rds-haproxy
       path: /etc/haproxy/haproxy.cfg
       mode: 644
+  
+  services:
+    haproxy-svc:
+      container: monk-rds-haproxy
+      port: <- `${rds_haproxy_port}`
+      protocol: tcp
+      host-port: <- `${rds_haproxy_port}`

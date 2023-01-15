@@ -1,2 +1,2 @@
 REPO redis
-LOAD redis.yml stack.yml
+LOAD redis.yml

@@ -66,7 +66,7 @@ The variables are stack section in `redis.yml` file. You can quickly setup by ed
 
 | Variable                     	    | Description                               	|
 |------------------------------	    |-------------------------------------------	|
-| redis_image_tag          	        | Docker image tag                           	|
+| image_tag          	        | Docker image tag                           	|
 | redis_port 	                    | Redis expose port, Default: 6389             	|
 | redis_password      	            | Redis password, Default: 123	                |
 | redis_empty_password              | Redis empyt password, Default: yes    	    |
