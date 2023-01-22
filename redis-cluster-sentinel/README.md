@@ -1,13 +1,16 @@
 # Redis & Monk
+
 This repository contains Monk.io template to deploy Mysql system either locally or on cloud of your choice (AWS, GCP, Azure, Digital Ocean).
 
-# Prerequisites
+## Prerequisites
+
 - [Install Monk](https://docs.monk.io/docs/get-monk)
 - [Register and Login Monk](https://docs.monk.io/docs/acc-and-auth)
 - [Add Cloud Provider](https://docs.monk.io/docs/cloud-provider)
 - [Add Instance](https://docs.monk.io/docs/multi-cloud)
 
-#### Make sure monkd is running.
+## Make sure monkd is running
+
 ```bash
 foo@bar:~$ monk status
 daemon: ready
@@ -16,20 +19,22 @@ not connected to cluster
 ```
 
 ## Clone Repository
+
 ```bash
 git clone https://github.com/monk-io/monk-redis
 ```
 
 ## Load Template
+
 ```bash
 cd monk-redis/redis-cluster-sentinel
 monk load MANIFEST
 ```
 
+## Let's take a look at the themes I have installed
 
-#### Let's take a look at the themes I have installed.
 ```bash
-foo@bar:~$ monk list monk-redis                                                                                                                    
+foo@bar:~$ monk list monk-redis
 ✔ Got the list
 Type      Template                              Repository  Version   Tags
 runnable  monk-redis-cluster/rds1       local       1.000000  -
@@ -40,8 +45,9 @@ group     monk-redis-cluster/stack      local       -         -
 ```
 
 ## Deploy Stack
+
 ```bash
-foo@bar:~$  monk run monk-redis-cluster/stack                                                                
+foo@bar:~$  monk run monk-redis-cluster/stack
 ✔ Starting the job: local/monk-redis-cluster/stack... DONE
 ✔ Preparing nodes DONE
 ✔ Checking/pulling images...
@@ -88,32 +94,31 @@ foo@bar:~$  monk run monk-redis-cluster/stack
           └─🔌 open 16.170.210.56:6388 (0.0.0.0:6388) -> 6379
 
 💡 You can inspect and manage your above stack with these commands:
-	monk logs (-f) local/monk-redis-cluster/stack - Inspect logs
-	monk shell     local/monk-redis-cluster/stack - Connect to the container's shell
-	monk do        local/monk-redis-cluster/stack/action_name - Run defined action (if exists)
+ monk logs (-f) local/monk-redis-cluster/stack - Inspect logs
+ monk shell     local/monk-redis-cluster/stack - Connect to the container's shell
+ monk do        local/monk-redis-cluster/stack/action_name - Run defined action (if exists)
 💡 Check monk help for more!
 ```
 
 ## Variables
+
 The variables are stack section in `redis.yml` file. You can quickly setup by editing the values here.
 
-| Variable                     	    | Description                               	|
-|------------------------------	    |-------------------------------------------	|
-| redis_image_tag          	       | Docker image tag                           	|
-| redis1_port 	                      | Redis expose port, Default: 6388             	|
-| redis2_port 	                      | Redis expose port, Default: 6389             	|
-| redis2_port 	                      | Redis expose port, Default: 6387             	|
-| redis_empty_password               | Redis empyt password, Default: yes    	    |
-| redis_io_thread              	    | Redis IO thread count, Default: 1       	    |
-| redis_io_threads_do_reads          | Default: yes                              	|
-| redis_disable_commands             | Redis disable commands, Default: FLUSHDB,FLUSHALL,CONFIG |
-| rds_haproxy_port                   | HAProxy Port                                  |
-| rds_haproxy_stats_port             | HAProxy Stats: <ip:port>/haproxy_stats |
-
-## 
+| Variable                  | Description                                              |
+|---------------------------|----------------------------------------------------------|
+| redis_image_tag           | Docker image tag                                         |
+| redis1_port               | Redis expose port, Default: 6388                         |
+| redis2_port               | Redis expose port, Default: 6389                         |
+| redis2_port               | Redis expose port, Default: 6387                         |
+| redis_empty_password      | Redis empyt password, Default: yes                       |
+| redis_io_thread           | Redis IO thread count, Default: 1                        |
+| redis_io_threads_do_reads | Default: yes                                             |
+| redis_disable_commands    | Redis disable commands, Default: FLUSHDB,FLUSHALL,CONFIG |
+| rds_haproxy_port          | HAProxy Port                                             |
+| rds_haproxy_stats_port    | HAProxy Stats: <ip:port>/haproxy_stats                   |
 
 ## Stop, remove and clean up workloads and templates
 
 ```bash
-monk purge -x monk-redis/stack 
+monk purge -x monk-redis/stack
 ```
