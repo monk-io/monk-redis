@@ -9,7 +9,7 @@ rds1:
     description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
     website: https://redis.io
     publisher: monk.io
-    icon: redis.png
+    icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
   version: 1.0
 
   variables:

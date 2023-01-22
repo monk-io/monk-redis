@@ -113,9 +113,8 @@ The variables are stack section in `redis.yml` file. You can quickly setup by ed
 | redis_empty_password      | Redis empyt password, Default: yes                       |
 | redis_io_thread           | Redis IO thread count, Default: 1                        |
 | redis_io_threads_do_reads | Default: yes                                             |
-| redis_disable_commands    | Redis disable commands, Default: FLUSHDB,FLUSHALL,CONFIG |
-| rds_haproxy_port          | HAProxy Port                                             |
-| rds_haproxy_stats_port    | HAProxy Stats: <ip:port>/haproxy_stats                   |
+| redis_disable_commands    | Redis disable commands, Default: FLUSHALL |
+
 
 ## Stop, remove and clean up workloads and templates
 

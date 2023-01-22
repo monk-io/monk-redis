@@ -12,12 +12,6 @@ stack:
     - monk-redis-cluster-haproxy/sentinel1
 
   variables:
-    rds_master:
-      value: <- get-hostname("monk-redis-cluster-haproxy/rds1", "monk-rds1")  split(".dns.podman") join("")
-    rds_slave1:
-      value: <- get-hostname("monk-redis-cluster-haproxy/rds2", "monk-rds2")  split(".dns.podman") join("")
-    rds_slave2:
-      value: <- get-hostname("monk-redis-cluster-haproxy/rds3", "monk-rds3")  split(".dns.podman") join("")
     redis_image_tag: "7.0"
     redis1_port: 6388
     redis2_port: 6389
