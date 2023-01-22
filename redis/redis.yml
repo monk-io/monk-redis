@@ -1,14 +1,17 @@
+---
 namespace: monk-redis
 
-rds: 
+rds:
+  defines: runnable
+
   metadata:
-    defines: metadata
     name: Redis
     description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
     website: https://redis.io
     publisher: monk.io
     icon: redis.png
-  defines: runnable
+  version: 1.0
+
   variables:
     image_tag:
       type: string
@@ -19,7 +22,7 @@ rds:
     redis_disable_commands:
       env: REDIS_DISABLE_COMMANDS
       type: string
-      value: FLUSHDB,FLUSHALL,CONFIG 
+      value: FLUSHDB,FLUSHALL,CONFIG
     redis_empty_password:
       env: ALLOW_EMPTY_PASSWORD
       type: string
@@ -35,15 +38,15 @@ rds:
     volume_data:
       type: string
       value: <- `${monk-volume-path}/redis`
+
   containers:
     monk-rds:
       paths:
         - <- `${volume_data}/mysql:/bitnami/redis/data`
       ports:
         - <- `0.0.0.0:${redis_port}:6379`
-      
       image: bitnami/redis
-  version: 1.0
+
   services:
     redis-svc:
       container: monk-rds
