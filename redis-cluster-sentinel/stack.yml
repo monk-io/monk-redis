@@ -1,14 +1,14 @@
 ---
-namespace: monk-redis-cluster
+namespace: redis-cluster
 
 stack:
   defines: process-group
 
   runnable-list:
-    - monk-redis-cluster/rds1
-    - monk-redis-cluster/rds2
-    - monk-redis-cluster/rds3
-    - monk-redis-cluster/sentinel1
+    - redis-cluster/rds1
+    - redis-cluster/rds2
+    - redis-cluster/rds3
+    - redis-cluster/sentinel1
 
   variables:
     redis_image_tag: "7.0"

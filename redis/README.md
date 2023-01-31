@@ -34,37 +34,37 @@ monk load MANIFEST
 ## Let's take a look at the themes I have installed
 
 ```bash
-foo@bar:~$ monk list monk-redis
+foo@bar:~$ monk list redis
 ✔ Got the list
 Type      Template          Repository  Version   Tags
-runnable  monk-redis/rds    local       1.000000  database
-group     monk-redis/stack  local       -         -
+runnable  redis/rds    local       1.000000  database
+group     redis/stack  local       -         -
 ```
 
 ## Deploy Stack
 
 ```bash
-foo@bar:~$ monk run monk-redis/stack
-✔ Starting the job: local/monk-redis/stack... DONE
+foo@bar:~$ monk run redis/stack
+✔ Starting the job: local/redis/stack... DONE
 ✔ Preparing nodes DONE
 ✔ Checking/pulling images...
 ✔ [================================================] 100% docker.io/bitnami/redis:latest QmVNxpEZyJ2eStXEQunPqMpr9AsRVnvQxRejyRiHQhNqdC
 ✔ Checking/pulling images DONE
 ✔ Starting containers DONE
-✔ Started local/monk-redis/stack
+✔ Started local/redis/stack
 
-🔩 templates/local/monk-redis/stack
+🔩 templates/local/redis/stack
  └─🧊 Peer QmVNxpEZyJ2eStXEQunPqMpr9AsRVnvQxRejyRiHQhNqdC
-    └─🔩 templates/local/monk-redis/rds
-       └─📦 local-bb68707c72eace348495b2787c-local-monk-redis-rds-monk-rds
+    └─🔩 templates/local/redis/rds
+       └─📦 local-bb68707c72eace348495b2787c-local-redis-rds-rds
           ├─🧩 docker.io/bitnami/redis:latest
           ├─💾 /Users/burakhan/.monk/volumes/redis/mysql -> /bitnami/redis/data
           └─🔌 open 31.206.6.31:6389 (0.0.0.0:6389) -> 6379
 
 💡 You can inspect and manage your above stack with these commands:
- monk logs (-f) local/monk-redis/stack - Inspect logs
- monk shell     local/monk-redis/stack - Connect to the container's shell
- monk do        local/monk-redis/stack/action_name - Run defined action (if exists)
+ monk logs (-f) local/redis/stack - Inspect logs
+ monk shell     local/redis/stack - Connect to the container's shell
+ monk do        local/redis/stack/action_name - Run defined action (if exists)
 💡 Check monk help for more!
 ```
 
@@ -85,5 +85,5 @@ The variables are stack section in `redis.yml` file. You can quickly setup by ed
 ## Stop, remove and clean up workloads and templates
 
 ```bash
-monk purge -x monk-redis/stack
+monk purge -x redis/stack
 ```

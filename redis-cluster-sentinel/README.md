@@ -34,21 +34,21 @@ monk load MANIFEST
 ## Let's take a look at the themes I have installed
 
 ```bash
-foo@bar:~$ monk list monk-redis
+foo@bar:~$ monk list redis-cluster
 ✔ Got the list
 Type      Template                              Repository  Version   Tags
-runnable  monk-redis-cluster/rds1       local       1.000000  -
-runnable  monk-redis-cluster/rds2       local       1.000000  -
-runnable  monk-redis-cluster/rds3       local       1.000000  -
-runnable  monk-redis-cluster/sentinel1  local       1.000000  -
-group     monk-redis-cluster/stack      local       -         -
+runnable  redis-cluster/rds1       local       1.000000  -
+runnable  redis-cluster/rds2       local       1.000000  -
+runnable  redis-cluster/rds3       local       1.000000  -
+runnable  redis-cluster/sentinel1  local       1.000000  -
+group     redis-cluster/stack      local       -         -
 ```
 
 ## Deploy Stack
 
 ```bash
-foo@bar:~$  monk run monk-redis-cluster/stack
-✔ Starting the job: local/monk-redis-cluster/stack... DONE
+foo@bar:~$  monk run redis-cluster/stack
+✔ Starting the job: local/redis-cluster/stack... DONE
 ✔ Preparing nodes DONE
 ✔ Checking/pulling images...
 ✔ [================================================] 100% docker.io/library/haproxy:latest rds-4
@@ -61,42 +61,42 @@ foo@bar:~$  monk run monk-redis-cluster/stack
 ✔ Starting containers DONE
 ✔ Starting containers DONE
 ✔ Starting containers DONE
-✔ Started local/monk-redis-cluster/stack
+✔ Started local/redis-cluster/stack
 
-🔩 templates/local/monk-redis-cluster/stack
+🔩 templates/local/redis-cluster/stack
  ├─🧊 Peer rds-3
- │  └─🔩 templates/local/monk-redis-cluster/rds3
+ │  └─🔩 templates/local/redis-cluster/rds3
  │     └─📦 f4eb51219592740a6654bd1253dec707-cluster-haproxy-rds3-monk-rds3
  │        ├─🧩 docker.io/library/redis:latest
  │        ├─💾 /var/lib/monkd/volumes/redis/redis3 -> /bitnami/redis/data
  │        └─🔌 open 16.170.209.25:6387 (0.0.0.0:6387) -> 6379
  ├─🧊 Peer rds-4
- │  ├─🔩 templates/local/monk-redis-cluster/sentinel1
+ │  ├─🔩 templates/local/redis-cluster/sentinel1
  │  │  └─📦 ff4ea0a9d79548909634a3b720171074--sentinel1-monk-rds-sentinel-1
  │  │     ├─🧩 docker.io/library/redis:latest
  │  │     └─💾 /var/lib/monkd/volumes/redis/sentinel -> /bitnami/redis/data
- │  └─🔩 templates/local/monk-redis-cluster/haproxy
+ │  └─🔩 templates/local/redis-cluster/haproxy
  │     └─📦 df07066edb5374f8bbed176d44d92d38-proxy-haproxy-monk-rds-haproxy
  │        ├─🧩 docker.io/library/haproxy:latest
  │        ├─🔌 open 13.48.124.173:6379 (0.0.0.0:6379) -> 6379
  │        └─🔌 open 13.48.124.173:9000 (0.0.0.0:9000) -> 9000
  ├─🧊 Peer rds-2
- │  └─🔩 templates/local/monk-redis-cluster/rds2
+ │  └─🔩 templates/local/redis-cluster/rds2
  │     └─📦 3051227d5eb7edfffe60ab902c54c6d2-cluster-haproxy-rds2-monk-rds2
  │        ├─🧩 docker.io/library/redis:latest
  │        ├─💾 /var/lib/monkd/volumes/redis/redis2 -> /bitnami/redis/data
  │        └─🔌 open 13.53.137.101:6389 (0.0.0.0:6389) -> 6379
  └─🧊 Peer rds-1
-    └─🔩 templates/local/monk-redis-cluster/rds1
+    └─🔩 templates/local/redis-cluster/rds1
        └─📦 5c99ef930cf923a25d82e066c8ac558b-cluster-haproxy-rds1-monk-rds1
           ├─🧩 docker.io/library/redis:latest
           ├─💾 /var/lib/monkd/volumes/redis/redis1 -> /bitnami/redis/data
           └─🔌 open 16.170.210.56:6388 (0.0.0.0:6388) -> 6379
 
 💡 You can inspect and manage your above stack with these commands:
- monk logs (-f) local/monk-redis-cluster/stack - Inspect logs
- monk shell     local/monk-redis-cluster/stack - Connect to the container's shell
- monk do        local/monk-redis-cluster/stack/action_name - Run defined action (if exists)
+ monk logs (-f) local/redis-cluster/stack - Inspect logs
+ monk shell     local/redis-cluster/stack - Connect to the container's shell
+ monk do        local/redis-cluster/stack/action_name - Run defined action (if exists)
 💡 Check monk help for more!
 ```
 
@@ -119,5 +119,5 @@ The variables are stack section in `redis.yml` file. You can quickly setup by ed
 ## Stop, remove and clean up workloads and templates
 
 ```bash
-monk purge -x monk-redis/stack
+monk purge -x redis-cluster/stack
 ```

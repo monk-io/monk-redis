@@ -1,5 +1,5 @@
 ---
-namespace: monk-redis-cluster
+namespace: redis-cluster
 
 rds1:
   defines: runnable
@@ -66,7 +66,7 @@ rds2:
 
   connections:
     rds1:
-      runnable: monk-redis-cluster/rds1
+      runnable: redis-cluster/rds1
       service: redis-svc
 
   variables:
@@ -111,7 +111,7 @@ rds2:
   depends:
     wait-for:
       runnables:
-        - monk-redis-cluster/rds1
+        - redis-cluster/rds1
       timeout: 30
 
   services:
@@ -133,7 +133,7 @@ rds3:
 
   connections:
     rds1:
-      runnable: monk-redis-cluster/rds1
+      runnable: redis-cluster/rds1
       service: redis-svc
 
   variables:
@@ -178,7 +178,7 @@ rds3:
   depends:
     wait-for:
       runnables:
-        - monk-redis-cluster/rds1
+        - redis-cluster/rds1
       timeout: 30
 
   services:
@@ -200,13 +200,13 @@ sentinel1:
 
   connections:
     rds1:
-      runnable: monk-redis-cluster/rds1
+      runnable: redis-cluster/rds1
       service: redis-svc
     rds2:
-      runnable: monk-redis-cluster/rds2
+      runnable: redis-cluster/rds2
       service: redis-svc
     rds3:
-      runnable: monk-redis-cluster/rds3
+      runnable: redis-cluster/rds3
       service: redis-svc
 
   variables:
@@ -262,7 +262,7 @@ sentinel1:
   depends:
     wait-for:
       runnables:
-        - monk-redis-cluster/rds1
+        - redis-cluster/rds1
       timeout: 30
 
   files:
