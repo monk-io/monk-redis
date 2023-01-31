@@ -1,15 +1,15 @@
 ---
-namespace: monk-redis-cluster-haproxy
+namespace: redis-cluster-haproxy
 
 stack:
   defines: process-group
 
   runnable-list:
-    - monk-redis-cluster-haproxy/rds1
-    - monk-redis-cluster-haproxy/rds2
-    - monk-redis-cluster-haproxy/rds3
-    - monk-redis-cluster-haproxy/haproxy
-    - monk-redis-cluster-haproxy/sentinel1
+    - redis-cluster-haproxy/rds1
+    - redis-cluster-haproxy/rds2
+    - redis-cluster-haproxy/rds3
+    - redis-cluster-haproxy/haproxy
+    - redis-cluster-haproxy/sentinel1
 
   variables:
     redis_image_tag: "7.0"
