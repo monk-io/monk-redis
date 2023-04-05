@@ -1,21 +1,49 @@
 ---
 namespace: redis
 
-rds:
+base:
   defines: runnable
-
   metadata:
     name: Redis
     description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
     website: https://redis.io
     publisher: monk.io
     icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
+    private: true
   version: 1.0
-
   variables:
-    image_tag:
+    redis_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
       type: string
-      value: latest
+      value: FLUSHDB,FLUSHALL,CONFIG
+    redis_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: 'yes'
+    redis_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: 1
+    redis_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: 'yes'
+    redis_instance_name:
+      type: string
+      value: master
+  containers:
+    redis:
+      paths:
+        - <- `${monk-volume-path}/redis/${redis_instance_name}:/bitnami/redis/data`
+      image: bitnami/redis
+
+redis:
+  defines: runnable
+  inherits: redis/base
+  metadata:
+    private: false
+  version: 1.0
+  variables:
     redis_port:
       type: int
       value: 6379
@@ -26,7 +54,7 @@ rds:
     redis_empty_password:
       env: ALLOW_EMPTY_PASSWORD
       type: string
-      value: yes
+      value: 'yes'
     redis_io_thread:
       env: REDIS_IO_THREADS
       type: string
@@ -34,21 +62,13 @@ rds:
     redis_io_threads_do_reads:
       env: REDIS_IO_THREADS_DO_READS
       type: string
-      value: yes
-    volume_data:
-      type: string
-      value: <- `${monk-volume-path}/redis`
-
+      value: 'yes'
   containers:
-    monk-rds:
-      paths:
-        - <- `${volume_data}/mysql:/bitnami/redis/data`
+    redis:
       ports:
         - <- `0.0.0.0:${redis_port}:6379`
-      image: bitnami/redis
-
   services:
     redis-svc:
-      container: monk-rds
+      container: redis
       port: 6379
       protocol: tcp

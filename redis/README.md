@@ -73,7 +73,7 @@ foo@bar:~$ monk run redis/stack
 The variables are stack section in `redis.yml` file. You can quickly setup by editing the values here.
 
 | Variable                  | Description                                              |
-|---------------------------|----------------------------------------------------------|
+| ------------------------- | -------------------------------------------------------- |
 | image_tag                 | Docker image tag                                         |
 | redis_port                | Redis expose port, Default: 6389                         |
 | redis_password            | Redis password, Default: 123                             |
