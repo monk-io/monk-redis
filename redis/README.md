@@ -37,34 +37,31 @@ monk load MANIFEST
 foo@bar:~$ monk list redis
 ✔ Got the list
 Type      Template          Repository  Version   Tags
-runnable  redis/rds    local       1.000000  database
-group     redis/stack  local       -         -
+runnable  redis/base                       local       1.000000  -
+runnable  redis/redis                      local       1.000000  -
 ```
 
 ## Deploy Stack
 
 ```bash
-foo@bar:~$ monk run redis/stack
-✔ Starting the job: local/redis/stack... DONE
+✔ Starting the run job: local/redis/redis... DONE
 ✔ Preparing nodes DONE
-✔ Checking/pulling images...
-✔ [================================================] 100% docker.io/bitnami/redis:latest QmVNxpEZyJ2eStXEQunPqMpr9AsRVnvQxRejyRiHQhNqdC
 ✔ Checking/pulling images DONE
 ✔ Starting containers DONE
-✔ Started local/redis/stack
-
-🔩 templates/local/redis/stack
- └─🧊 Peer QmVNxpEZyJ2eStXEQunPqMpr9AsRVnvQxRejyRiHQhNqdC
-    └─🔩 templates/local/redis/rds
-       └─📦 local-bb68707c72eace348495b2787c-local-redis-rds-rds
-          ├─🧩 docker.io/bitnami/redis:latest
-          ├─💾 /Users/burakhan/.monk/volumes/redis/mysql -> /bitnami/redis/data
-          └─🔌 open 31.206.6.31:6389 (0.0.0.0:6389) -> 6379
+✔ New container 00d298a4e10754a827ba85acde7938a2-local-redis-redis-redis created DONE
+✔ Started local/redis/redis
+🔩 templates/local/redis/redis
+ └─🧊 Peer local
+    └─🔩 templates/local/redis/redis
+       └─📦 00d298a4e10754a827ba85acde7938a2-local-redis-redis-redis running
+          ├─🧩 bitnami/redis:latest
+          ├─💾 /var/lib/monkd/volumes/redis/master -> /bitnami/redis/data
+          └─🔌 open 1.1.1.1:6379 (0.0.0.0:6379) -> 6379
 
 💡 You can inspect and manage your above stack with these commands:
- monk logs (-f) local/redis/stack - Inspect logs
- monk shell     local/redis/stack - Connect to the container's shell
- monk do        local/redis/stack/action_name - Run defined action (if exists)
+        monk logs (-f) local/redis/redis - Inspect logs
+        monk shell     local/redis/redis - Connect to the container's shell
+        monk do        local/redis/redis/action_name - Run defined action (if exists)
 💡 Check monk help for more!
 ```
 
@@ -85,5 +82,5 @@ The variables are stack section in `redis.yml` file. You can quickly setup by ed
 ## Stop, remove and clean up workloads and templates
 
 ```bash
-monk purge -x redis/stack
+monk purge -x redis/redis
 ```

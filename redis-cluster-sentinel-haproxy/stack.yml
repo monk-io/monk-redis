@@ -3,24 +3,53 @@ namespace: redis-cluster-haproxy
 
 stack:
   defines: process-group
+  metadata:
+    name: Redis Clustered with HAProxy
+    description: |
+      A clustered Redis setup with one master and two slave nodes is a distributed system that allows for high availability and fault tolerance.
 
+      The master node is responsible for handling all write operations, while the slave nodes replicate the data from the master and handle read operations.
+
+      HAProxy is used as a frontend to distribute incoming traffic across the nodes, ensuring that requests are evenly distributed and the system remains highly available. This setup provides a scalable and reliable solution for handling large amounts of data and traffic.
+
+    website: https://redis.io
+    publisher: monk.io
+    icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
+    version: 1.0
   runnable-list:
-    - redis-cluster-haproxy/rds1
-    - redis-cluster-haproxy/rds2
-    - redis-cluster-haproxy/rds3
+    - redis-cluster-haproxy/redis-master
+    - redis-cluster-haproxy/redis-slave-1
+    - redis-cluster-haproxy/redis-slave-2
+    - redis-cluster-haproxy/sentinel
     - redis-cluster-haproxy/haproxy
-    - redis-cluster-haproxy/sentinel1
-
   variables:
-    redis_image_tag: "7.0"
-    redis1_port: 6388
-    redis2_port: 6389
-    redis3_port: 6387
-    rds_haproxy_port: 6379
-    rds_haproxy_stats_port: 9000
-    redis_disable_commands: FLUSHALL
-    redis_password: bitnami
-    redis_empty_password: yes
-    redis_io_thread: 1
-    redis_io_threads_do_reads: yes
-    redis_nodes_list:
+    master_port:
+      type: string
+      value: 6387
+    slave-1_port:
+      type: string
+      value: 6388
+    slave-2_port:
+      type: string
+      value: 6389
+    disable_commands:
+      type: string
+      value: FLUSHALL
+    password:
+      type: string
+      value: bitnami
+    empty_password:
+      type: string
+      value: 'no'
+    io_thread:
+      type: string
+      value: 1
+    io_threads_do_reads:
+      type: string
+      value: 'yes'
+    rds_haproxy_port:
+      type: string
+      value: 6379
+    rds_haproxy_stats_port:
+      type: string
+      value: 9000

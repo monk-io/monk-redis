@@ -36,13 +36,14 @@ monk load MANIFEST
 ```bash
 foo@bar:~$ monk list redis-cluster-haproxy
 ✔ Got the list
-Type      Template                              Repository  Version   Tags
-runnable  redis-cluster-haproxy/haproxy    local       1.000000  -
-runnable  redis-cluster-haproxy/rds1       local       1.000000  -
-runnable  redis-cluster-haproxy/rds2       local       1.000000  -
-runnable  redis-cluster-haproxy/rds3       local       1.000000  -
-runnable  redis-cluster-haproxy/sentinel1  local       1.000000  -
-group     redis-cluster-haproxy/stack      local       -         -
+Type      Template                             Repository  Version  Tags
+runnable  redis-cluster-haproxy/base           local       -        -
+runnable  redis-cluster-haproxy/haproxy        local       -        -
+runnable  redis-cluster-haproxy/redis-master   local       -        -
+runnable  redis-cluster-haproxy/redis-slave-1  local       -        -
+runnable  redis-cluster-haproxy/redis-slave-2  local       -        -
+runnable  redis-cluster-haproxy/sentinel       local       -        -
+group     redis-cluster-haproxy/stack          local       -        -
 ```
 
 ## Deploy Stack
@@ -52,52 +53,47 @@ foo@bar:~$  monk run redis-cluster-haproxy/stack
 ✔ Starting the job: local/redis-cluster-haproxy/stack... DONE
 ✔ Preparing nodes DONE
 ✔ Checking/pulling images...
-✔ [================================================] 100% docker.io/library/haproxy:latest rds-4
-✔ [================================================] 100% docker.io/library/redis:latest rds-1
-✔ [================================================] 100% docker.io/library/redis:latest rds-4
-✔ [================================================] 100% docker.io/library/redis:latest rds-3
-✔ [================================================] 100% docker.io/library/redis:latest rds-2
+✔ [================================================] 100% bitnami/redis:latest local
+✔ [================================================] 100% haproxy:latest local
+✔ [================================================] 100% bitnami/redis-sentinel:latest local
 ✔ Checking/pulling images DONE
 ✔ Starting containers DONE
-✔ Starting containers DONE
-✔ Starting containers DONE
-✔ Starting containers DONE
+✔ New container 83c00af62bb27380b3a0d5c2c43cf52d-ter-haproxy-redis-master-redis created DONE
+✔ New container b29a8e8293e7a0ab753bba2c027cf959-er-haproxy-redis-slave-1-redis created DONE
+✔ New container 11b6f7a1bf583da1115f12a3522daf5a-er-haproxy-redis-slave-2-redis created DONE
+✔ New container d82529b141164d4bb01531a2b244fbf0-ster-haproxy-sentinel-sentinel created DONE
+✔ New container b6c8bce840625b0dc00d32bd1d388698-luster-haproxy-haproxy-haproxy created DONE
 ✔ Started local/redis-cluster-haproxy/stack
-
 🔩 templates/local/redis-cluster-haproxy/stack
- ├─🧊 Peer rds-3
- │  └─🔩 templates/local/redis-cluster-haproxy/rds3
- │     └─📦 f4eb51219592740a6654bd1253dec707-cluster-haproxy-rds3-monk-rds3
- │        ├─🧩 docker.io/library/redis:latest
- │        ├─💾 /var/lib/monkd/volumes/redis/redis3 -> /bitnami/redis/data
- │        └─🔌 open 16.170.209.25:6387 (0.0.0.0:6387) -> 6379
- ├─🧊 Peer rds-4
- │  ├─🔩 templates/local/redis-cluster-haproxy/sentinel1
- │  │  └─📦 ff4ea0a9d79548909634a3b720171074--sentinel1-monk-rds-sentinel-1
- │  │     ├─🧩 docker.io/library/redis:latest
- │  │     └─💾 /var/lib/monkd/volumes/redis/sentinel -> /bitnami/redis/data
- │  └─🔩 templates/local/redis-cluster-haproxy/haproxy
- │     └─📦 df07066edb5374f8bbed176d44d92d38-proxy-haproxy-monk-rds-haproxy
- │        ├─🧩 docker.io/library/haproxy:latest
- │        ├─🔌 open 13.48.124.173:6379 (0.0.0.0:6379) -> 6379
- │        └─🔌 open 13.48.124.173:9000 (0.0.0.0:9000) -> 9000
- ├─🧊 Peer rds-2
- │  └─🔩 templates/local/redis-cluster-haproxy/rds2
- │     └─📦 3051227d5eb7edfffe60ab902c54c6d2-cluster-haproxy-rds2-monk-rds2
- │        ├─🧩 docker.io/library/redis:latest
- │        ├─💾 /var/lib/monkd/volumes/redis/redis2 -> /bitnami/redis/data
- │        └─🔌 open 13.53.137.101:6389 (0.0.0.0:6389) -> 6379
- └─🧊 Peer rds-1
-    └─🔩 templates/local/redis-cluster-haproxy/rds1
-       └─📦 5c99ef930cf923a25d82e066c8ac558b-cluster-haproxy-rds1-monk-rds1
-          ├─🧩 docker.io/library/redis:latest
-          ├─💾 /var/lib/monkd/volumes/redis/redis1 -> /bitnami/redis/data
-          └─🔌 open 16.170.210.56:6388 (0.0.0.0:6388) -> 6379
+ └─🧊 Peer local
+    ├─🔩 templates/local/redis-cluster-haproxy/redis-master
+    │  └─📦 83c00af62bb27380b3a0d5c2c43cf52d-ter-haproxy-redis-master-redis running
+    │     ├─🧩 bitnami/redis:latest
+    │     ├─💾 /var/lib/monkd/volumes/redis/master -> /bitnami/redis/data
+    │     └─🔌 open 1.1.1.1:6387 (0.0.0.0:6387) -> 6379
+    ├─🔩 templates/local/redis-cluster-haproxy/redis-slave-1
+    │  └─📦 b29a8e8293e7a0ab753bba2c027cf959-er-haproxy-redis-slave-1-redis running
+    │     ├─🧩 bitnami/redis:latest
+    │     ├─💾 /var/lib/monkd/volumes/redis/slave-1 -> /bitnami/redis/data
+    │     └─🔌 open 1.1.1.1:6388 (0.0.0.0:6388) -> 6379
+    ├─🔩 templates/local/redis-cluster-haproxy/sentinel
+    │  └─📦 d82529b141164d4bb01531a2b244fbf0-ster-haproxy-sentinel-sentinel running
+    │     └─🧩 bitnami/redis-sentinel:latest
+    ├─🔩 templates/local/redis-cluster-haproxy/haproxy
+    │  └─📦 b6c8bce840625b0dc00d32bd1d388698-luster-haproxy-haproxy-haproxy running
+    │     ├─🧩 haproxy:latest
+    │     ├─🔌 open 1.1.1.1:6379 -> 6379
+    │     └─🔌 open 1.1.1.1:9000 -> 9000
+    └─🔩 templates/local/redis-cluster-haproxy/redis-slave-2
+       └─📦 11b6f7a1bf583da1115f12a3522daf5a-er-haproxy-redis-slave-2-redis running
+          ├─🧩 bitnami/redis:latest
+          ├─💾 /var/lib/monkd/volumes/redis/slave-2 -> /bitnami/redis/data
+          └─🔌 open 1.1.1.1:6389 (0.0.0.0:6389) -> 6379
 
 💡 You can inspect and manage your above stack with these commands:
- monk logs (-f) local/redis-cluster-haproxy/stack - Inspect logs
- monk shell     local/redis-cluster-haproxy/stack - Connect to the container's shell
- monk do        local/redis-cluster-haproxy/stack/action_name - Run defined action (if exists)
+        monk logs (-f) local/redis-cluster-haproxy/stack - Inspect logs
+        monk shell     local/redis-cluster-haproxy/stack - Connect to the container's shell
+        monk do        local/redis-cluster-haproxy/stack/action_name - Run defined action (if exists)
 💡 Check monk help for more!
 ```
 
@@ -105,19 +101,18 @@ foo@bar:~$  monk run redis-cluster-haproxy/stack
 
 The variables are stack section in `redis.yml` file. You can quickly setup by editing the values here.
 
-| Variable                  | Description                                              |
-|---------------------------|----------------------------------------------------------|
-| redis_image_tag           | Docker image tag                                         |
-| redis1_port               | Redis expose port, Default: 6388                         |
-| redis2_port               | Redis expose port, Default: 6389                         |
-| redis2_port               | Redis expose port, Default: 6387                         |
-| redis_empty_password      | Redis empyt password, Default: yes                       |
-| redis_io_thread           | Redis IO thread count, Default: 1                        |
-| redis_io_threads_do_reads | Default: yes                                             |
-| redis_disable_commands    | Redis disable commands, Default: FLUSHDB,FLUSHALL,CONFIG |
-| rds_haproxy_port          | HAProxy Port                                             |
-| rds_haproxy_stats_port    | HAProxy Stats: <ip:port>/haproxy_stats                   |
-
+| Variable               | Description            | Default  |
+| ---------------------- | ---------------------- | -------- |
+| master_port            | Redis master           | 6388     |
+| slave-1_port           | Redis slave-1          | 6389     |
+| slave-2_port           | Redis slave-2          | 6387     |
+| empty_password         | Redis empyt password   | no       |
+| io_thread              | Redis IO thread count  | 1        |
+| io_threads_do_reads    | Enable multi threading | yes      |
+| disable_commands       | Redis disable commands | FLUSHALL |
+| password               | Redis master password  | bitnami  |
+| rds_haproxy_port       | HAProxy Port           | 6379     |
+| rds_haproxy_stats_port | HAProxy Stats Port     | 9000     |
 ## Stop, remove and clean up workloads and templates
 
 ```bash

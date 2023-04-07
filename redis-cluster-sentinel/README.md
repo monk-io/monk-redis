@@ -34,69 +34,59 @@ monk load MANIFEST
 ## Let's take a look at the themes I have installed
 
 ```bash
-foo@bar:~$ monk list redis-cluster
+$ monk list redis-cluster
 ✔ Got the list
-Type      Template                              Repository  Version   Tags
-runnable  redis-cluster/rds1       local       1.000000  -
-runnable  redis-cluster/rds2       local       1.000000  -
-runnable  redis-cluster/rds3       local       1.000000  -
-runnable  redis-cluster/sentinel1  local       1.000000  -
-group     redis-cluster/stack      local       -         -
+Type      Template                     Repository  Version  Tags
+runnable  redis-cluster/base           local       -        -
+runnable  redis-cluster/redis-master   local       -        -
+runnable  redis-cluster/redis-slave-1  local       -        -
+runnable  redis-cluster/redis-slave-2  local       -        -
+runnable  redis-cluster/sentinel       local       -        -
+group     redis-cluster/stack          local       -        -
 ```
 
 ## Deploy Stack
 
 ```bash
 foo@bar:~$  monk run redis-cluster/stack
-✔ Starting the job: local/redis-cluster/stack... DONE
+? Select which 'redis-cluster/stack' to run local/redis-cluster/stack
+✔ Starting the run job: local/redis-cluster/stack... DONE
 ✔ Preparing nodes DONE
 ✔ Checking/pulling images...
-✔ [================================================] 100% docker.io/library/haproxy:latest rds-4
-✔ [================================================] 100% docker.io/library/redis:latest rds-1
-✔ [================================================] 100% docker.io/library/redis:latest rds-4
-✔ [================================================] 100% docker.io/library/redis:latest rds-3
-✔ [================================================] 100% docker.io/library/redis:latest rds-2
+✔ [================================================] 100% bitnami/redis:latest local
+✔ [================================================] 100% bitnami/redis-sentinel:latest local
 ✔ Checking/pulling images DONE
 ✔ Starting containers DONE
-✔ Starting containers DONE
-✔ Starting containers DONE
-✔ Starting containers DONE
+✔ New container 7ab9415e3ca4288468a2ce2d0b6f9882-dis-cluster-redis-master-redis created DONE
+✔ New container 524c95d78a90e4a4cd2656efa22d6297-edis-cluster-sentinel-sentinel created DONE
+✔ New container 0a597b55e626e104a9be54e12c946dd8-is-cluster-redis-slave-1-redis created DONE
+✔ New container 2b2759878f277f0afdabea4bc6386132-is-cluster-redis-slave-2-redis created DONE
 ✔ Started local/redis-cluster/stack
-
 🔩 templates/local/redis-cluster/stack
- ├─🧊 Peer rds-3
- │  └─🔩 templates/local/redis-cluster/rds3
- │     └─📦 f4eb51219592740a6654bd1253dec707-cluster-haproxy-rds3-monk-rds3
- │        ├─🧩 docker.io/library/redis:latest
- │        ├─💾 /var/lib/monkd/volumes/redis/redis3 -> /bitnami/redis/data
- │        └─🔌 open 16.170.209.25:6387 (0.0.0.0:6387) -> 6379
- ├─🧊 Peer rds-4
- │  ├─🔩 templates/local/redis-cluster/sentinel1
- │  │  └─📦 ff4ea0a9d79548909634a3b720171074--sentinel1-monk-rds-sentinel-1
- │  │     ├─🧩 docker.io/library/redis:latest
- │  │     └─💾 /var/lib/monkd/volumes/redis/sentinel -> /bitnami/redis/data
- │  └─🔩 templates/local/redis-cluster/haproxy
- │     └─📦 df07066edb5374f8bbed176d44d92d38-proxy-haproxy-monk-rds-haproxy
- │        ├─🧩 docker.io/library/haproxy:latest
- │        ├─🔌 open 13.48.124.173:6379 (0.0.0.0:6379) -> 6379
- │        └─🔌 open 13.48.124.173:9000 (0.0.0.0:9000) -> 9000
- ├─🧊 Peer rds-2
- │  └─🔩 templates/local/redis-cluster/rds2
- │     └─📦 3051227d5eb7edfffe60ab902c54c6d2-cluster-haproxy-rds2-monk-rds2
- │        ├─🧩 docker.io/library/redis:latest
- │        ├─💾 /var/lib/monkd/volumes/redis/redis2 -> /bitnami/redis/data
- │        └─🔌 open 13.53.137.101:6389 (0.0.0.0:6389) -> 6379
- └─🧊 Peer rds-1
-    └─🔩 templates/local/redis-cluster/rds1
-       └─📦 5c99ef930cf923a25d82e066c8ac558b-cluster-haproxy-rds1-monk-rds1
-          ├─🧩 docker.io/library/redis:latest
-          ├─💾 /var/lib/monkd/volumes/redis/redis1 -> /bitnami/redis/data
-          └─🔌 open 16.170.210.56:6388 (0.0.0.0:6388) -> 6379
+ └─🧊 Peer local
+    ├─🔩 templates/local/redis-cluster/redis-master
+    │  └─📦 7ab9415e3ca4288468a2ce2d0b6f9882-dis-cluster-redis-master-redis running
+    │     ├─🧩 bitnami/redis:latest
+    │     ├─💾 /var/lib/monkd/volumes/redis/master -> /bitnami/redis/data
+    │     └─🔌 open 1.1.1.1:6387 (0.0.0.0:6387) -> 6379
+    ├─🔩 templates/local/redis-cluster/redis-slave-1
+    │  └─📦 0a597b55e626e104a9be54e12c946dd8-is-cluster-redis-slave-1-redis running
+    │     ├─🧩 bitnami/redis:latest
+    │     ├─💾 /var/lib/monkd/volumes/redis/slave-1 -> /bitnami/redis/data
+    │     └─🔌 open 1.1.1.1:6388 (0.0.0.0:6388) -> 6379
+    ├─🔩 templates/local/redis-cluster/redis-slave-2
+    │  └─📦 2b2759878f277f0afdabea4bc6386132-is-cluster-redis-slave-2-redis running
+    │     ├─🧩 bitnami/redis:latest
+    │     ├─💾 /var/lib/monkd/volumes/redis/slave-2 -> /bitnami/redis/data
+    │     └─🔌 open 1.1.1.1:6389 (0.0.0.0:6389) -> 6379
+    └─🔩 templates/local/redis-cluster/sentinel
+       └─📦 524c95d78a90e4a4cd2656efa22d6297-edis-cluster-sentinel-sentinel running
+          └─🧩 bitnami/redis-sentinel:latest
 
 💡 You can inspect and manage your above stack with these commands:
- monk logs (-f) local/redis-cluster/stack - Inspect logs
- monk shell     local/redis-cluster/stack - Connect to the container's shell
- monk do        local/redis-cluster/stack/action_name - Run defined action (if exists)
+        monk logs (-f) local/redis-cluster/stack - Inspect logs
+        monk shell     local/redis-cluster/stack - Connect to the container's shell
+        monk do        local/redis-cluster/stack/action_name - Run defined action (if exists)
 💡 Check monk help for more!
 ```
 
@@ -104,17 +94,16 @@ foo@bar:~$  monk run redis-cluster/stack
 
 The variables are stack section in `redis.yml` file. You can quickly setup by editing the values here.
 
-| Variable                  | Description                                              |
-|---------------------------|----------------------------------------------------------|
-| redis_image_tag           | Docker image tag                                         |
-| redis1_port               | Redis expose port, Default: 6388                         |
-| redis2_port               | Redis expose port, Default: 6389                         |
-| redis2_port               | Redis expose port, Default: 6387                         |
-| redis_empty_password      | Redis empyt password, Default: yes                       |
-| redis_io_thread           | Redis IO thread count, Default: 1                        |
-| redis_io_threads_do_reads | Default: yes                                             |
-| redis_disable_commands    | Redis disable commands, Default: FLUSHALL |
-
+| Variable            | Description            | Default  |
+| ------------------- | ---------------------- | -------- |
+| master_port         | Redis master           | 6388     |
+| slave-1_port        | Redis slave-1          | 6389     |
+| slave-2_port        | Redis slave-2          | 6387     |
+| empty_password      | Redis empyt password   | no       |
+| io_thread           | Redis IO thread count  | 1        |
+| io_threads_do_reads | Enable multi threading | yes      |
+| disable_commands    | Redis disable commands | FLUSHALL |
+| password            | Redis master password  | bitnami  |
 
 ## Stop, remove and clean up workloads and templates
 
