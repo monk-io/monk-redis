@@ -1,293 +1,251 @@
 ---
 namespace: redis-cluster
 
-rds1:
+base:
   defines: runnable
-
   metadata:
     name: Redis
     description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
     website: https://redis.io
     publisher: monk.io
     icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
-  version: 1.0
-
+    private: true
+    version: 1.0
   variables:
-    image_tag:
-      type: string
-      value: <- `${redis_image_tag}`
-    rds_port:
-      type: int
-      value: <- `${redis1_port}`
-    rds_disable_commands:
+    redis_disable_commands:
       env: REDIS_DISABLE_COMMANDS
       type: string
-      value: <- `${redis_disable_commands}`
-    rds_empty_password:
+      value: FLUSHDB,FLUSHALL,CONFIG
+    redis_empty_password:
       env: ALLOW_EMPTY_PASSWORD
       type: string
-      value: <- `${redis_empty_password}`
-    rds_io_thread:
+      value: 'yes'
+    redis_io_thread:
       env: REDIS_IO_THREADS
       type: string
-      value: <- `${redis_io_thread}`
-    rds_io_threads_do_reads:
+      value: 1
+    redis_io_threads_do_reads:
       env: REDIS_IO_THREADS_DO_READS
       type: string
-      value: <- `${redis_io_threads_do_reads}`
-    volume_data:
+      value: 'yes'
+    redis_instance_name:
       type: string
-      value: <- `${monk-volume-path}/redis`
-
+      value: master
   containers:
-    monk-rds:
+    redis:
       paths:
-        - <- `${volume_data}/redis1:/bitnami/redis/data`
-      ports:
-        - <- `0.0.0.0:${rds_port}:6379`
-      image: redis
+        - <- `${monk-volume-path}/redis/${redis_instance_name}:/bitnami/redis/data`
+      image: bitnami/redis
 
+redis-master:
+  defines: runnable
+  inherits: redis-cluster/base
+  variables:
+    redis_port:
+      type: string
+      value: <- `${master_port}`
+    redis_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: <- `${disable_commands}`
+    redis_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: <- `${empty_password}`
+    redis_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: <- `${io_thread}`
+    redis_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: <- `${io_threads_do_reads}`
+    redis_password:
+      env: REDIS_PASSWORD
+      type: string
+      value: <- `${password}`
+    redis_replication_mode:
+      env: REDIS_REPLICATION_MODE
+      type: string
+      value: master
+  containers:
+    redis:
+      ports:
+        - <- `0.0.0.0:${redis_port}:6379`
   services:
-    redis-svc:
-      container: monk-rds
+    redis:
+      container: redis
       port: 6379
       protocol: tcp
 
-rds2:
+redis-slave-1:
   defines: runnable
-
-  metadata:
-    name: Redis
-    description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
-    website: https://redis.io
-    publisher: monk.io
-    icon: redis.png
-  version: 1.0
-
+  inherits: redis-cluster/base
   connections:
-    rds1:
-      runnable: redis-cluster/rds1
-      service: redis-svc
-
+    redis-master:
+      runnable: redis-cluster/redis-master
+      service: redis
   variables:
-    image_tag:
-      type: string
-      value: <- `${redis_image_tag}`
-    rds_port:
-      type: int
-      value: <- `${redis2_port}`
-    rds_disable_commands:
+    redis_disable_commands:
       env: REDIS_DISABLE_COMMANDS
       type: string
-      value: <- `${redis_disable_commands}`
-    rds_empty_password:
+      value: <- `${disable_commands}`
+    redis_empty_password:
       env: ALLOW_EMPTY_PASSWORD
       type: string
-      value: <- `${redis_empty_password}`
-    rds_io_thread:
+      value: <- `${empty_password}`
+    redis_io_thread:
       env: REDIS_IO_THREADS
       type: string
-      value: <- `${redis_io_thread}`
-    rds_io_threads_do_reads:
+      value: <- `${io_thread}`
+    redis_io_threads_do_reads:
       env: REDIS_IO_THREADS_DO_READS
       type: string
-      value: <- `${redis_io_threads_do_reads}`
-    volume_data:
+      value: <- `${io_threads_do_reads}`
+    redis_password:
+      env: REDIS_PASSWORD
       type: string
-      value: <- `${monk-volume-path}/redis`
-    rds_master:
-      env: REDIS_MASTER
-      value: <- connection-hostname("rds1") split(".dns.podman") join("")
-
+      value: <- `${password}`
+    redis_port:
+      type: string
+      value: <- `${slave-1_port}`
+    redis_instance_name:
+      type: string
+      value: slave-1
+    redis_replication_mode:
+      env: REDIS_REPLICATION_MODE
+      type: string
+      value: slave
+    redis_master_host:
+      env: REDIS_MASTER_HOST
+      value: <- connection-hostname("redis-master")
+      type: string
+    redis_master_port:
+      env: REDIS_MASTER_PORT_NUMBER
+      value: <- connection-port("redis-master")
+      type: string
+    redis_master_password:
+      env: REDIS_MASTER_PASSWORD
+      type: string
+      value: <- `${password}`
   containers:
-    monk-rds:
-      paths:
-        - <- `${volume_data}/redis2:/bitnami/redis/data`
+    redis:
       ports:
-        - <- `0.0.0.0:${rds_port}:6379`
-      image: redis
-      bash: <- `redis-server --slaveof ${rds_master} 6379`
-
+        - <- `0.0.0.0:${redis_port}:6379`
   depends:
     wait-for:
       runnables:
-        - redis-cluster/rds1
+        - redis-cluster/redis-master
       timeout: 30
-
   services:
-    redis-svc:
-      container: monk-rds
+    redis:
+      container: redis
       port: 6379
       protocol: tcp
 
-rds3:
+redis-slave-2:
   defines: runnable
-
-  metadata:
-    name: Redis
-    description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
-    website: https://redis.io
-    publisher: monk.io
-    icon: redis.png
-  version: 1.0
-
+  inherits: redis-cluster/base
   connections:
-    rds1:
-      runnable: redis-cluster/rds1
-      service: redis-svc
-
+    redis-master:
+      runnable: redis-cluster/redis-master
+      service: redis
   variables:
-    image_tag:
-      type: string
-      value: <- `${redis_image_tag}`
-    rds_port:
-      type: int
-      value: <- `${redis3_port}`
-    rds_disable_commands:
+    redis_disable_commands:
       env: REDIS_DISABLE_COMMANDS
       type: string
-      value: <- `${redis_disable_commands}`
-    rds_empty_password:
+      value: <- `${disable_commands}`
+    redis_empty_password:
       env: ALLOW_EMPTY_PASSWORD
       type: string
-      value: <- `${redis_empty_password}`
-    rds_io_thread:
+      value: <- `${empty_password}`
+    redis_io_thread:
       env: REDIS_IO_THREADS
       type: string
-      value: <- `${redis_io_thread}`
-    rds_io_threads_do_reads:
+      value: <- `${io_thread}`
+    redis_io_threads_do_reads:
       env: REDIS_IO_THREADS_DO_READS
       type: string
-      value: <- `${redis_io_threads_do_reads}`
-    volume_data:
+      value: <- `${io_threads_do_reads}`
+    redis_password:
+      env: REDIS_PASSWORD
       type: string
-      value: <- `${monk-volume-path}/redis`
-    rds_master:
-      env: REDIS_MASTER
-      value: <- connection-hostname("rds1") split(".dns.podman") join("")
-
+      value: <- `${password}`
+    redis_port:
+      type: string
+      value: <- `${slave-2_port}`
+    redis_instance_name:
+      type: string
+      value: slave-2
+    redis_replication_mode:
+      env: REDIS_REPLICATION_MODE
+      type: string
+      value: slave
+    redis_master_host:
+      env: REDIS_MASTER_HOST
+      value: <- connection-hostname("redis-master")
+      type: string
+    redis_master_port:
+      env: REDIS_MASTER_PORT_NUMBER
+      value: <- connection-port("redis-master")
+      type: string
+    redis_master_password:
+      env: REDIS_MASTER_PASSWORD
+      type: string
+      value: <- `${password}`
   containers:
-    monk-rds:
-      paths:
-        - <- `${volume_data}/redis3:/bitnami/redis/data`
+    redis:
       ports:
-        - <- `0.0.0.0:${rds_port}:6379`
-      image: redis
-      bash: <- `redis-server --slaveof ${rds_master} 6379`
-
+        - <- `0.0.0.0:${redis_port}:6379`
   depends:
     wait-for:
       runnables:
-        - redis-cluster/rds1
+        - redis-cluster/redis-master
       timeout: 30
-
   services:
-    redis-svc:
-      container: monk-rds
+    redis:
+      container: redis
       port: 6379
       protocol: tcp
 
-sentinel1:
+sentinel:
   defines: runnable
-
   metadata:
-    name: Sentinel
-    description: High availability for non-clustered Redis
+    name: Redis Sentinel
+    description: Redis Sentinel is a high-availability solution for Redis. It is a distributed system that monitors Redis instances and automatically performs failover when a master instance fails. Sentinel is designed to be highly available and fault-tolerant, ensuring that Redis instances are always available to clients.
     website: https://redis.io
     publisher: monk.io
-    icon: redis.png
-  version: 1.0
-
+    icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
+    version: 1.0
+    private: true
   connections:
-    rds1:
-      runnable: redis-cluster/rds1
-      service: redis-svc
-    rds2:
-      runnable: redis-cluster/rds2
-      service: redis-svc
-    rds3:
-      runnable: redis-cluster/rds3
-      service: redis-svc
-
+    redis-master:
+      runnable: redis-cluster/redis-master
+      service: redis
+    redis-slave-1:
+      runnable: redis-cluster/redis-slave-1
+      service: redis
+    redis-slave-2:
+      runnable: redis-cluster/redis-slave-2
+      service: redis
   variables:
-    image_tag:
+    redis_master:
+      env: REDIS_MASTER_HOST
+      value: <- connection-hostname("redis-master")
       type: string
-      value: <- `${redis_image_tag}`
-    rds_disable_commands:
-      env: REDIS_DISABLE_COMMANDS
+    redis_password:
+      env: REDIS_MASTER_PASSWORD
       type: string
-      value: <- `${redis_disable_commands}`
-    rds_empty_password:
-      env: ALLOW_EMPTY_PASSWORD
+      value: <- `${password}`
+    redis_port:
+      env: REDIS_MASTER_PORT_NUMBER
       type: string
-      value: <- `${redis_empty_password}`
-    rds_io_thread:
-      env: REDIS_IO_THREADS
-      type: string
-      value: <- `${redis_io_thread}`
-    rds_io_threads_do_reads:
-      env: REDIS_IO_THREADS_DO_READS
-      type: string
-      value: <- `${redis_io_threads_do_reads}`
-    rds_sentinel_quorum:
-      env: SENTINEL_QUORUM
-      value: 2
-      type: string
-    rds_sentinel_down_after:
-      env: SENTINEL_DOWN_AFTER
-      value: 5000
-      type: string
-    rds_sentinel_failover:
-      env: SENTINEL_FAILOVER
-      value: 10000
-      type: string
-    rds_sentinel_port:
-      env: SENTINEL_FAILOVER
-      value: 26000
-      type: string
-    rds_master:
-      env: REDIS_MASTER
-      value: <- connection-hostname("rds1") split(".dns.podman") join("")
-    volume_data:
-      type: string
-      value: <- `${monk-volume-path}/redis`
-
+      value: <- connection-port("redis-master")
   containers:
-    monk-rds-sentinel:
-      paths:
-        - <- `${volume_data}/sentinel:/bitnami/redis/data`
-      bash: redis-server /etc/redis/sentinel.conf --sentinel
-      image: redis
-
+    sentinel:
+      image: bitnami/redis-sentinel
   depends:
     wait-for:
       runnables:
-        - redis-cluster/rds1
+        - redis-cluster/redis-master
       timeout: 30
-
-  files:
-    sentinel_conf:
-      contents: |
-        port 26379
-        dir /tmp
-        sentinel resolve-hostnames yes
-        sentinel monitor mymaster {{ v "rds_master"}} 6379 {{ v "rds_sentinel_quorum"}}
-        sentinel down-after-milliseconds mymaster {{ v "rds_sentinel_down_after"}}
-        sentinel parallel-syncs mymaster 1
-        sentinel failover-timeout mymaster {{ v "rds_sentinel_failover"}}
-      container: monk-rds-sentinel
-      path: /etc/redis/sentinel.conf
-      mode: 777
-    entrypoint_sh:
-      raw: true
-      contents: |
-        docker-entrypoint.sh redis-server /etc/redis/sentinel.conf --sentinel
-      container: monk-rds-sentinel
-      path: /usr/local/bin/entrypoint.sh
-      mode: 755
-
-  services:
-    redis-svc:
-      container: monk-rds-sentinel
-      port: 6379
-      protocol: tcp

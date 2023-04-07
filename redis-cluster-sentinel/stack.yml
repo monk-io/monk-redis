@@ -3,20 +3,44 @@ namespace: redis-cluster
 
 stack:
   defines: process-group
+  metadata:
+    name: Redis Clustered
+    description: |
+      A master-slave clustered Redis setup consists of one master node and two slave nodes. The master node is responsible for handling all write operations and replicating data to the slave nodes.
 
+      The slave nodes are responsible for handling read operations and can also act as a failover mechanism in case the master node fails. This setup provides high availability and scalability for Redis applications.
+
+    website: https://redis.io
+    publisher: monk.io
+    icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
+    version: 1.0
   runnable-list:
-    - redis-cluster/rds1
-    - redis-cluster/rds2
-    - redis-cluster/rds3
-    - redis-cluster/sentinel1
-
+    - redis-cluster/redis-master
+    - redis-cluster/redis-slave-1
+    - redis-cluster/redis-slave-2
+    - redis-cluster/sentinel
   variables:
-    redis_image_tag: "7.0"
-    redis1_port: 6388
-    redis2_port: 6389
-    redis3_port: 6387
-    redis_disable_commands: FLUSHALL
-    redis_password: bitnami
-    redis_empty_password: no
-    redis_io_thread: 1
-    redis_io_threads_do_reads: yes
+    master_port:
+      type: string
+      value: 6387
+    slave-1_port:
+      type: string
+      value: 6388
+    slave-2_port:
+      type: string
+      value: 6389
+    disable_commands:
+      type: string
+      value: FLUSHALL
+    password:
+      type: string
+      value: bitnami
+    empty_password:
+      type: string
+      value: 'no'
+    io_thread:
+      type: string
+      value: 1
+    io_threads_do_reads:
+      type: string
+      value: 'yes'
