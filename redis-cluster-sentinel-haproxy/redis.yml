@@ -320,7 +320,6 @@ haproxy:
       container: haproxy
       port: <- `${rds_haproxy_port}`
       protocol: tcp
-      host-port: <- `${rds_haproxy_port}`
   depends:
     wait-for:
       runnables:
