@@ -68,10 +68,6 @@ redis-master:
       env: REDIS_REPLICATION_MODE
       type: string
       value: master
-  containers:
-    redis:
-      ports:
-        - <- `0.0.0.0:${redis_port}:6379`
   services:
     redis:
       container: redis
@@ -128,10 +124,6 @@ redis-slave-1:
       env: REDIS_MASTER_PASSWORD
       type: string
       value: <- `${password}`
-  containers:
-    redis:
-      ports:
-        - <- `0.0.0.0:${redis_port}:6379`
   depends:
     wait-for:
       runnables:
@@ -193,10 +185,6 @@ redis-slave-2:
       env: REDIS_MASTER_PASSWORD
       type: string
       value: <- `${password}`
-  containers:
-    redis:
-      ports:
-        - <- `0.0.0.0:${redis_port}:6379`
   depends:
     wait-for:
       runnables:
@@ -291,9 +279,6 @@ haproxy:
   containers:
     haproxy:
       image: haproxy
-      ports:
-        - <- `${haproxy_port}:6379`
-        - <- `${rds_haproxy_stats_port}:9000`
       bash: haproxy -f /etc/haproxy/haproxy.cfg
   files:
     sentinel_conf:

@@ -62,10 +62,6 @@ redis:
       env: REDIS_IO_THREADS_DO_READS
       type: string
       value: 'yes'
-  containers:
-    redis:
-      ports:
-        - <- `0.0.0.0:${redis_port}:6379`
   services:
     redis-svc:
       container: redis
