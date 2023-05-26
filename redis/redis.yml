@@ -11,6 +11,7 @@ base:
     icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
     private: true
     version: 1.0
+    tags: fast, popular, in-memory, key-value, store, database, cache, message, broker
   variables:
     redis_disable_commands:
       env: REDIS_DISABLE_COMMANDS
