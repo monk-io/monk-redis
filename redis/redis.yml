@@ -37,6 +37,7 @@ base:
         - <- `${monk-volume-path}/redis/${redis_instance_name}:/bitnami/redis/data`
       image: bitnami/redis
 
+
 redis:
   defines: runnable
   inherits: redis/base
