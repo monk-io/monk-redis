@@ -1,2 +1,2 @@
 REPO monk-redis
-DIR redis redis-cluster-sentinel redis-cluster-sentinel-haproxy
+DIR redis redis-cluster-sentinel redis-cluster-sentinel-haproxy redis-mcp

@@ -1,0 +1,40 @@
+---
+namespace: redis-mcp-cloud
+
+cloud-stack:
+  defines: process-group
+  metadata:
+    name: Redis Cloud MCP Stack
+    description: Redis Cloud instance with MCP server
+    website: https://github.com/redis/mcp-redis
+    publisher: monk.io
+    icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
+    version: 1.0
+    tags: "redis, mcp, ai, llm, genai, cloud"
+  runnable-list:
+    - redis-cloud-example/stack
+    - redis-mcp-cloud/mcp-cloud
+
+mcp-cloud:
+  defines: runnable
+  inherits: redis-mcp/mcp
+  connections:
+    redis-cloud-db:
+      runnable: redis-cloud-example/redis-database
+      service: db
+  variables:
+    redis_host:
+      value: <- connection-target("redis-cloud-db") entity-state get-member("publicEndpointHost")
+    redis_port:
+      value: <- connection-target("redis-cloud-db") entity-state get-member("publicEndpointPort")
+    redis_username:
+      value: <- connection-target("redis-cloud-db") entity-state get-member("username")
+    redis_password:
+      value: <- connection-target("redis-cloud-db") entity get-member("password_secret") secret
+    redis_ssl:
+      value: true
+  depends:
+    wait-for:
+      runnables:
+        - redis-cloud-example/redis-database
+      timeout: 180 

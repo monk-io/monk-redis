@@ -1,0 +1,36 @@
+---
+namespace: redis-mcp-cluster
+
+cluster-stack:
+  defines: process-group
+  metadata:
+    name: Redis Cluster MCP Stack
+    description: Redis cluster with sentinel and MCP server
+    website: https://github.com/redis/mcp-redis
+    publisher: monk.io
+    icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
+    version: 1.0
+    tags: "redis, mcp, ai, llm, genai, cluster, sentinel"
+  runnable-list:
+    - redis-cluster/stack
+    - redis-mcp-cluster/mcp-cluster
+
+mcp-cluster:
+  defines: runnable
+  inherits: redis-mcp/mcp
+  connections:
+    sentinel:
+      runnable: redis-cluster/sentinel
+      service: sentinel
+  variables:
+    redis_host:
+      value: <- connection-hostname("sentinel")
+    redis_port:
+      value: <- connection-port("sentinel")
+    redis_cluster_mode:
+      value: true
+  depends:
+    wait-for:
+      runnables:
+        - redis-cluster/sentinel
+      timeout: 60 

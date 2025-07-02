@@ -1,0 +1,2 @@
+REPO redis-mcp
+LOAD redis.yml
