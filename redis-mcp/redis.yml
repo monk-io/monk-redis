@@ -1,0 +1,80 @@
+---
+namespace: redis-mcp
+
+mcp:
+  defines: runnable
+  metadata:
+    name: Redis MCP Server
+    description: |
+      Flexible Redis MCP Server. Connects to any Redis instance (standalone, cluster, sentinel, or cloud) by setting variables or using Monk connections.
+    website: https://github.com/redis/mcp-redis
+    publisher: monk.io
+    icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
+    version: 1.0
+    tags: "redis, mcp, ai, llm, genai"
+  variables:
+    mcp_transport:
+      env: MCP_TRANSPORT
+      type: string
+      value: streamable-http
+    mcp_host:
+      env: MCP_HOST
+      type: string
+      value: 0.0.0.0
+    mcp_port:
+      env: MCP_PORT
+      type: int
+      value: 8000
+    mcp_publish:
+      type: bool
+      value: false
+    redis_host:
+      env: REDIS_HOST
+      type: string
+      value: localhost
+    redis_port:
+      env: REDIS_PORT
+      type: int
+      value: 6379
+    redis_username:
+      env: REDIS_USERNAME
+      type: string
+      value: ""
+    redis_password:
+      env: REDIS_PWD
+      type: string
+      value: ""
+    redis_ssl:
+      env: REDIS_SSL
+      type: bool
+      value: false
+    redis_ca_path:
+      env: REDIS_CA_PATH
+      type: string
+      value: ""
+    redis_cluster_mode:
+      env: REDIS_CLUSTER_MODE
+      type: bool
+      value: false
+  containers:
+    mcp-server:
+      image: mcp/redis
+      image-tag: latest
+      environment:
+        - MCP_TRANSPORT=${mcp_transport}
+        - MCP_HOST=${mcp_host}
+        - MCP_PORT=${mcp_port}
+        - REDIS_HOST=${redis_host}
+        - REDIS_PORT=${redis_port}
+        - REDIS_USERNAME=${redis_username}
+        - REDIS_PWD=${redis_password}
+        - REDIS_SSL=${redis_ssl}
+        - REDIS_CA_PATH=${redis_ca_path}
+        - REDIS_CLUSTER_MODE=${redis_cluster_mode}
+  services:
+    mcp:
+      container: mcp-server
+      port: 8000
+      protocol: tcp
+      publish: false
+      host-port: 8000 
