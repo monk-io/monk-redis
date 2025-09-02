@@ -35,7 +35,7 @@ base:
     redis:
       paths:
         - <- `${monk-volume-path}/redis/${redis_instance_name}:/bitnami/redis/data`
-      image: bitnami/redis
+      image: bitnamilegacy/redis
 
 
 redis:

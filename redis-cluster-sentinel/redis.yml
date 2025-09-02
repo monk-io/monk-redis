@@ -35,7 +35,7 @@ base:
     redis:
       paths:
         - <- `${monk-volume-path}/redis/${redis_instance_name}:/bitnami/redis/data`
-      image: bitnami/redis
+      image: bitnamilegacy/redis
 
 redis-master:
   defines: runnable
@@ -231,7 +231,7 @@ sentinel:
       value: <- connection-port("redis-master")
   containers:
     sentinel:
-      image: bitnami/redis-sentinel
+      image: bitnamilegacy/redis-sentinel
   depends:
     wait-for:
       runnables:
