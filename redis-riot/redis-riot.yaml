@@ -1,0 +1,158 @@
+namespace: monk-redis
+
+redis:
+  defines: runnable
+  inherits: redis/base
+  metadata:
+    private: false
+  variables:
+    redis_port:
+      type: int
+      value: 6379
+    redis_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: FLUSHDB,FLUSHALL,CONFIG
+    redis_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: 'yes'
+    redis_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: 1
+    redis_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: 'yes'
+  services:
+    redis-svc:
+      container: redis
+      port: 6379
+      protocol: tcp
+      host-port: 6379
+      publish: true
+
+redis-target:
+  defines: runnable
+  inherits: redis/base
+  metadata:
+    private: false
+  variables:
+    redis_port:
+      type: int
+      value: 6380
+    redis_disable_commands:
+      env: REDIS_DISABLE_COMMANDS
+      type: string
+      value: FLUSHDB,FLUSHALL,CONFIG
+    redis_empty_password:
+      env: ALLOW_EMPTY_PASSWORD
+      type: string
+      value: 'yes'
+    redis_io_thread:
+      env: REDIS_IO_THREADS
+      type: string
+      value: 1
+    redis_io_threads_do_reads:
+      env: REDIS_IO_THREADS_DO_READS
+      type: string
+      value: 'yes'
+    redis_instance_name:
+      type: string
+      value: target
+  containers:
+    redis:
+      bash: |
+        # Start Redis on port 6380 in background
+        redis-server --port 6380 --save "" --appendonly no --protected-mode no &
+        REDIS_PID=$!
+        
+        # Wait for Redis to start
+        sleep 5
+        
+        # Create test data
+        redis-cli -p 6380 HSET user:1 id 1 name "John Doe" email "john@example.com" age 30
+        redis-cli -p 6380 HSET product:1 id 1 name "Laptop" price 999.99 category "Electronics"
+        
+        echo "Test data created in Redis"
+        
+        # Keep Redis running
+        wait $REDIS_PID
+  services:
+    redis-target-svc:
+      container: redis
+      port: 6380
+      protocol: tcp
+      host-port: 6380
+      publish: true
+
+riot-replicator:
+  metadata:
+    defines: metadata
+    name: RIOT Data Migrator
+    description: RIOT tool for replicating data between Redis instances
+    website: https://redis.io/docs/latest/integrate/riot/
+    publisher: monk.io
+  defines: runnable
+  depends:
+    wait-for:
+      runnables:
+        - monk-redis/redis
+        - monk-redis/redis-target
+  connections:
+    redis-source:
+      runnable: monk-redis/redis-target
+      service: redis-target-svc
+    redis-target:
+      runnable: monk-redis/redis
+      service: redis-svc
+  variables:
+    source_redis_host:
+      type: string
+      value: <- connection-hostname("redis-source")
+      description: "Source Redis host"
+      env: SOURCE_REDIS_HOST
+    source_redis_port:
+      type: int
+      value: <- connection-port("redis-source")
+      description: "Source Redis port"
+      env: SOURCE_REDIS_PORT
+    base_db:
+      type: string
+      value: "0"
+      description: "Base database name"
+      env: BASE_DB
+    target_redis_host:
+      type: string
+      value: <- connection-hostname("redis-target")
+      description: "Target Redis host"
+      env: TARGET_REDIS_HOST
+    target_redis_port:
+      type: int
+      value: <- connection-port("redis-target")
+      description: "Target Redis port"
+      env: TARGET_REDIS_PORT
+    batch_size:
+      type: int
+      value: 50
+      description: "Batch size for replication"
+      env: BATCH_SIZE
+  containers:
+    riot:
+      image: riotx/riot:latest
+      bash: |
+        sleep 5
+        
+        riot replicate \
+        redis://${SOURCE_REDIS_HOST}:${SOURCE_REDIS_PORT} \
+        redis://${TARGET_REDIS_HOST}:${TARGET_REDIS_PORT} \
+        --batch ${BATCH_SIZE} \
+
+
+redis-to-redis-stack:
+  defines: process-group
+  runnable-list:
+    - monk-redis/redis
+    - monk-redis/redis-target
+    - monk-redis/riot-replicator

@@ -1,0 +1,3 @@
+REPO monk-redis
+LOAD redis-riot.yaml
+
