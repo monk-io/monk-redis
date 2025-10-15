@@ -1,0 +1,147 @@
+---
+title: Redis
+description: Ready-to-run Redis container template you can run directly or inherit to integrate an in-memory data store into your stack.
+primary_category: cache
+tags: [redis, cache, database, template, runnable, in-memory, key-value]
+integration_type: template
+hosting_models: [self-hosted]
+website_url: https://redis.io/
+docs_url: https://redis.io/docs/
+publisher: monk.io
+---
+
+## Overview
+
+This template provides a production‑ready Redis instance as a Monk runnable. You can:
+
+- Run it directly to get a managed Redis container with sensible defaults
+- Inherit it in your own runnable to seamlessly add an in-memory data store to your stack
+
+It exposes Redis on port 6379, persists data to a host volume, and supports optional password authentication.
+
+Redis is an open-source, in-memory data structure store used as a database, cache, message broker, and streaming engine. It supports various data structures such as strings, hashes, lists, sets, sorted sets, and more.
+
+## What this template manages
+
+- Redis container (`redis` image, configurable tag)
+- Network service on port 6379
+- Persistent volumes for data storage
+- Optional password authentication
+- Multiple data structures support
+
+## Quick start (run directly)
+
+1) Load templates
+
+```bash
+monk load MANIFEST
+```
+
+2) Run Redis with defaults
+
+```bash
+monk run redis/redis
+```
+
+3) Customize credentials (recommended via inheritance)
+
+Running directly uses the defaults defined in this template's `variables`. Secrets added with `monk secrets add` will not affect this runnable unless you inherit it and reference those secrets.
+
+- Preferred: inherit and replace variables with `secret("...")` as shown below.
+- Alternative: fork/clone and edit the `variables` in `redis/redis.yml`, then `monk load MANIFEST` and run.
+
+Once started, connect to `localhost:6379` (or the runnable hostname inside Monk networks) using any Redis client.
+
+## Configuration
+
+Key variables you can customize in this template:
+
+```yaml
+variables:
+  redis-image-tag: "latest"           # container image tag
+  redis-password: "..."               # optional password for authentication
+  redis-port: "6379"                  # Redis port
+  redis-maxmemory: "256mb"            # maximum memory limit
+  redis-persistence: "yes"            # enable/disable RDB snapshots
+```
+
+Data is persisted under `${monk-volume-path}/redis` on the host.
+
+## Use by inheritance (recommended for apps)
+
+Inherit the Redis runnable in your application and declare a connection. Example:
+
+```yaml
+namespace: myapp
+cache:
+  defines: runnable
+  inherits: redis/redis
+api:
+  defines: runnable
+  containers:
+    api:
+      image: myorg/api
+  connections:
+    cache:
+      runnable: cache
+      service: redis
+  variables:
+    redis-host:
+      value: <- connection-hostname("cache")
+    redis-port:
+      value: "6379"
+    redis-password:
+      value: <- secret("redis-password")
+```
+
+Then set the secrets once and run your app:
+
+```bash
+monk secrets add -g redis-password="STRONG_PASSWORD"
+monk run myapp/api
+```
+
+## Ports and connectivity
+
+- Service: `redis` on TCP port `6379`
+- From other runnables in the same process group, use `connection-hostname("<connection-name>")` to resolve the Redis host.
+
+## Persistence and configuration
+
+- Data path: `${monk-volume-path}/redis:/data`
+- Redis can persist data using RDB snapshots or AOF (Append Only File)
+- Configure persistence options in the template variables
+
+## Features
+
+- In-memory key-value store
+- Multiple data structures (strings, hashes, lists, sets, sorted sets)
+- Pub/Sub messaging
+- Transactions
+- Persistence options (RDB, AOF)
+- Lua scripting
+- Replication and clustering
+
+## Related templates
+
+- High‑availability setup: see the `redis-cluster-sentinel/` template in this repository for a Redis Sentinel configuration.
+- Distributed setup: check `redis-cluster-sentinel-haproxy/` for Redis Cluster with HAProxy load balancing.
+- Combine with databases for caching layer (MySQL, PostgreSQL, MongoDB).
+
+## Troubleshooting
+
+- If you changed `redis-password` but the container has existing data, authentication may fail. Either reset the data volume or update the password configuration.
+- Ensure the host volumes are writable by the container user if persistence is enabled.
+- Test connection with redis-cli:
+
+```bash
+redis-cli -h localhost -p 6379 ping
+```
+
+- Check logs:
+
+```bash
+monk logs -l 500 -f redis/redis
+```
+
+- If memory issues occur, adjust `redis-maxmemory` variable.
