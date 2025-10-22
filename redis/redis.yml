@@ -30,7 +30,7 @@ base:
       value: 'yes'
     redis_instance_name:
       type: string
-      value: master
+      value: leader
   containers:
     redis:
       paths:

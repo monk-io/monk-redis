@@ -6,27 +6,27 @@ stack:
   metadata:
     name: Redis Clustered
     description: |
-      A master-slave clustered Redis setup consists of one master node and two slave nodes. The master node is responsible for handling all write operations and replicating data to the slave nodes.
+      A leader-follower clustered Redis setup consists of one leader node and two follower nodes. The leader node is responsible for handling all write operations and replicating data to the follower nodes.
 
-      The slave nodes are responsible for handling read operations and can also act as a failover mechanism in case the master node fails. This setup provides high availability and scalability for Redis applications.
+      The follower nodes are responsible for handling read operations and can also act as a failover mechanism in case the leader node fails. This setup provides high availability and scalability for Redis applications.
 
     website: https://redis.io
     publisher: monk.io
     icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
     version: 1.0
   runnable-list:
-    - redis-cluster/redis-master
-    - redis-cluster/redis-slave-1
-    - redis-cluster/redis-slave-2
+    - redis-cluster/redis-leader
+    - redis-cluster/redis-follower-1
+    - redis-cluster/redis-follower-2
     - redis-cluster/sentinel
   variables:
-    master_port:
+    leader_port:
       type: string
       value: 6387
-    slave-1_port:
+    follower-1_port:
       type: string
       value: 6388
-    slave-2_port:
+    follower-2_port:
       type: string
       value: 6389
     disable_commands:

@@ -30,20 +30,20 @@ base:
       value: 'yes'
     redis_instance_name:
       type: string
-      value: master
+      value: leader
   containers:
     redis:
       paths:
         - <- `${monk-volume-path}/redis/${redis_instance_name}:/bitnami/redis/data`
       image: bitnamilegacy/redis
 
-redis-master:
+redis-leader:
   defines: runnable
   inherits: redis-cluster/base
   variables:
     redis_port:
       type: string
-      value: <- `${master_port}`
+      value: <- `${leader_port}`
     redis_disable_commands:
       env: REDIS_DISABLE_COMMANDS
       type: string
@@ -67,19 +67,19 @@ redis-master:
     redis_replication_mode:
       env: REDIS_REPLICATION_MODE
       type: string
-      value: master
+      value: leader
   services:
     redis:
       container: redis
       port: 6379
       protocol: tcp
 
-redis-slave-1:
+redis-follower-1:
   defines: runnable
   inherits: redis-cluster/base
   connections:
-    redis-master:
-      runnable: redis-cluster/redis-master
+    redis-leader:
+      runnable: redis-cluster/redis-leader
       service: redis
   variables:
     redis_disable_commands:
@@ -104,30 +104,30 @@ redis-slave-1:
       value: <- `${password}`
     redis_port:
       type: string
-      value: <- `${slave-1_port}`
+      value: <- `${follower-1_port}`
     redis_instance_name:
       type: string
-      value: slave-1
+      value: follower-1
     redis_replication_mode:
       env: REDIS_REPLICATION_MODE
       type: string
-      value: slave
-    redis_master_host:
+      value: follower
+    redis_leader_host:
       env: REDIS_MASTER_HOST
-      value: <- connection-hostname("redis-master")
+      value: <- connection-hostname("redis-leader")
       type: string
-    redis_master_port:
+    redis_leader_port:
       env: REDIS_MASTER_PORT_NUMBER
-      value: <- connection-port("redis-master")
+      value: <- connection-port("redis-leader")
       type: string
-    redis_master_password:
+    redis_leader_password:
       env: REDIS_MASTER_PASSWORD
       type: string
       value: <- `${password}`
   depends:
     wait-for:
       runnables:
-        - redis-cluster/redis-master
+        - redis-cluster/redis-leader
       timeout: 30
   services:
     redis:
@@ -135,12 +135,12 @@ redis-slave-1:
       port: 6379
       protocol: tcp
 
-redis-slave-2:
+redis-follower-2:
   defines: runnable
   inherits: redis-cluster/base
   connections:
-    redis-master:
-      runnable: redis-cluster/redis-master
+    redis-leader:
+      runnable: redis-cluster/redis-leader
       service: redis
   variables:
     redis_disable_commands:
@@ -165,30 +165,30 @@ redis-slave-2:
       value: <- `${password}`
     redis_port:
       type: string
-      value: <- `${slave-2_port}`
+      value: <- `${follower-2_port}`
     redis_instance_name:
       type: string
-      value: slave-2
+      value: follower-2
     redis_replication_mode:
       env: REDIS_REPLICATION_MODE
       type: string
-      value: slave
-    redis_master_host:
+      value: follower
+    redis_leader_host:
       env: REDIS_MASTER_HOST
-      value: <- connection-hostname("redis-master")
+      value: <- connection-hostname("redis-leader")
       type: string
-    redis_master_port:
+    redis_leader_port:
       env: REDIS_MASTER_PORT_NUMBER
-      value: <- connection-port("redis-master")
+      value: <- connection-port("redis-leader")
       type: string
-    redis_master_password:
+    redis_leader_password:
       env: REDIS_MASTER_PASSWORD
       type: string
       value: <- `${password}`
   depends:
     wait-for:
       runnables:
-        - redis-cluster/redis-master
+        - redis-cluster/redis-leader
       timeout: 30
   services:
     redis:
@@ -200,26 +200,26 @@ sentinel:
   defines: runnable
   metadata:
     name: Redis Sentinel
-    description: Redis Sentinel is a high-availability solution for Redis. It is a distributed system that monitors Redis instances and automatically performs failover when a master instance fails. Sentinel is designed to be highly available and fault-tolerant, ensuring that Redis instances are always available to clients.
+    description: Redis Sentinel is a high-availability solution for Redis. It is a distributed system that monitors Redis instances and automatically performs failover when a leader instance fails. Sentinel is designed to be highly available and fault-tolerant, ensuring that Redis instances are always available to clients.
     website: https://redis.io
     publisher: monk.io
     icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
     version: 1.0
     private: true
   connections:
-    redis-master:
-      runnable: redis-cluster/redis-master
+    redis-leader:
+      runnable: redis-cluster/redis-leader
       service: redis
-    redis-slave-1:
-      runnable: redis-cluster/redis-slave-1
+    redis-follower-1:
+      runnable: redis-cluster/redis-follower-1
       service: redis
-    redis-slave-2:
-      runnable: redis-cluster/redis-slave-2
+    redis-follower-2:
+      runnable: redis-cluster/redis-follower-2
       service: redis
   variables:
-    redis_master:
+    redis_leader:
       env: REDIS_MASTER_HOST
-      value: <- connection-hostname("redis-master")
+      value: <- connection-hostname("redis-leader")
       type: string
     redis_password:
       env: REDIS_MASTER_PASSWORD
@@ -228,12 +228,12 @@ sentinel:
     redis_port:
       env: REDIS_MASTER_PORT_NUMBER
       type: string
-      value: <- connection-port("redis-master")
+      value: <- connection-port("redis-leader")
   containers:
     sentinel:
       image: bitnamilegacy/redis-sentinel
   depends:
     wait-for:
       runnables:
-        - redis-cluster/redis-master
+        - redis-cluster/redis-leader
       timeout: 30

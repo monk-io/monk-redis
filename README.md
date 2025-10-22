@@ -9,10 +9,10 @@ Monk templates for Redis deployments and Redis MCP Server integration.
 - **`redis-mcp/mcp`** - Redis MCP Server for AI-driven data management
 
 ### Redis Cluster
-- **`redis-cluster/stack`** - Redis cluster with master-slave replication and sentinel
-- **`redis-cluster/redis-master`** - Redis master node
-- **`redis-cluster/redis-slave-1`** - Redis slave node 1
-- **`redis-cluster/redis-slave-2`** - Redis slave node 2
+- **`redis-cluster/stack`** - Redis cluster with leader-follower replication and sentinel
+- **`redis-cluster/redis-leader`** - Redis leader node
+- **`redis-cluster/redis-follower-1`** - Redis follower node 1
+- **`redis-cluster/redis-follower-2`** - Redis follower node 2
 - **`redis-cluster/sentinel`** - Redis sentinel for high availability
 
 ### Redis Cluster with HAProxy
@@ -64,7 +64,7 @@ monk run redis-mcp-cluster/cluster-stack
 ## Features
 
 - **Single Redis Instance** - Basic Redis deployment
-- **Redis Cluster** - High availability with master-slave replication and sentinel
+- **Redis Cluster** - High availability with leader-follower replication and sentinel
 - **Redis MCP Server** - AI-powered natural language interface for Redis
 - **Multiple Deployment Options** - Local, cluster, and cloud configurations
 - **HTTP Transport** - MCP server accessible on port 8000 for external tools
