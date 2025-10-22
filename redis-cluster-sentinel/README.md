@@ -36,13 +36,13 @@ monk load MANIFEST
 ```bash
 $ monk list redis-cluster
 ✔ Got the list
-Type      Template                     Repository  Version  Tags
-runnable  redis-cluster/base           local       -        -
-runnable  redis-cluster/redis-master   local       -        -
-runnable  redis-cluster/redis-slave-1  local       -        -
-runnable  redis-cluster/redis-slave-2  local       -        -
-runnable  redis-cluster/sentinel       local       -        -
-group     redis-cluster/stack          local       -        -
+Type      Template                       Repository  Version  Tags
+runnable  redis-cluster/base             local       -        -
+runnable  redis-cluster/redis-leader     local       -        -
+runnable  redis-cluster/redis-follower-1 local       -        -
+runnable  redis-cluster/redis-follower-2 local       -        -
+runnable  redis-cluster/sentinel         local       -        -
+group     redis-cluster/stack            local       -        -
 ```
 
 ## Deploy Stack
@@ -57,27 +57,27 @@ foo@bar:~$  monk run redis-cluster/stack
 ✔ [================================================] 100% bitnami/redis-sentinel:latest local
 ✔ Checking/pulling images DONE
 ✔ Starting containers DONE
-✔ New container 7ab9415e3ca4288468a2ce2d0b6f9882-dis-cluster-redis-master-redis created DONE
+✔ New container 7ab9415e3ca4288468a2ce2d0b6f9882-dis-cluster-redis-leader-redis created DONE
 ✔ New container 524c95d78a90e4a4cd2656efa22d6297-edis-cluster-sentinel-sentinel created DONE
-✔ New container 0a597b55e626e104a9be54e12c946dd8-is-cluster-redis-slave-1-redis created DONE
-✔ New container 2b2759878f277f0afdabea4bc6386132-is-cluster-redis-slave-2-redis created DONE
+✔ New container 0a597b55e626e104a9be54e12c946dd8-is-cluster-redis-follower-1-redis created DONE
+✔ New container 2b2759878f277f0afdabea4bc6386132-is-cluster-redis-follower-2-redis created DONE
 ✔ Started local/redis-cluster/stack
 🔩 templates/local/redis-cluster/stack
  └─🧊 Peer local
-    ├─🔩 templates/local/redis-cluster/redis-master
-    │  └─📦 7ab9415e3ca4288468a2ce2d0b6f9882-dis-cluster-redis-master-redis running
+    ├─🔩 templates/local/redis-cluster/redis-leader
+    │  └─📦 7ab9415e3ca4288468a2ce2d0b6f9882-dis-cluster-redis-leader-redis running
     │     ├─🧩 bitnami/redis:latest
-    │     ├─💾 /var/lib/monkd/volumes/redis/master -> /bitnami/redis/data
+    │     ├─💾 /var/lib/monkd/volumes/redis/leader -> /bitnami/redis/data
     │     └─🔌 open 1.1.1.1:6387 (0.0.0.0:6387) -> 6379
-    ├─🔩 templates/local/redis-cluster/redis-slave-1
-    │  └─📦 0a597b55e626e104a9be54e12c946dd8-is-cluster-redis-slave-1-redis running
+    ├─🔩 templates/local/redis-cluster/redis-follower-1
+    │  └─📦 0a597b55e626e104a9be54e12c946dd8-is-cluster-redis-follower-1-redis running
     │     ├─🧩 bitnami/redis:latest
-    │     ├─💾 /var/lib/monkd/volumes/redis/slave-1 -> /bitnami/redis/data
+    │     ├─💾 /var/lib/monkd/volumes/redis/follower-1 -> /bitnami/redis/data
     │     └─🔌 open 1.1.1.1:6388 (0.0.0.0:6388) -> 6379
-    ├─🔩 templates/local/redis-cluster/redis-slave-2
-    │  └─📦 2b2759878f277f0afdabea4bc6386132-is-cluster-redis-slave-2-redis running
+    ├─🔩 templates/local/redis-cluster/redis-follower-2
+    │  └─📦 2b2759878f277f0afdabea4bc6386132-is-cluster-redis-follower-2-redis running
     │     ├─🧩 bitnami/redis:latest
-    │     ├─💾 /var/lib/monkd/volumes/redis/slave-2 -> /bitnami/redis/data
+    │     ├─💾 /var/lib/monkd/volumes/redis/follower-2 -> /bitnami/redis/data
     │     └─🔌 open 1.1.1.1:6389 (0.0.0.0:6389) -> 6379
     └─🔩 templates/local/redis-cluster/sentinel
        └─📦 524c95d78a90e4a4cd2656efa22d6297-edis-cluster-sentinel-sentinel running
@@ -96,14 +96,14 @@ The variables are stack section in `redis.yml` file. You can quickly setup by ed
 
 | Variable            | Description            | Default  |
 | ------------------- | ---------------------- | -------- |
-| master_port         | Redis master           | 6388     |
-| slave-1_port        | Redis slave-1          | 6389     |
-| slave-2_port        | Redis slave-2          | 6387     |
+| leader_port         | Redis leader           | 6388     |
+| follower-1_port     | Redis follower-1       | 6389     |
+| follower-2_port     | Redis follower-2       | 6387     |
 | empty_password      | Redis empyt password   | no       |
 | io_thread           | Redis IO thread count  | 1        |
 | io_threads_do_reads | Enable multi threading | yes      |
 | disable_commands    | Redis disable commands | FLUSHALL |
-| password            | Redis master password  | bitnami  |
+| password            | Redis leader password  | bitnami  |
 
 ## Stop, remove and clean up workloads and templates
 

@@ -55,7 +55,7 @@ runnable  redis/redis                      local       1.000000  -
     └─🔩 templates/local/redis/redis
        └─📦 00d298a4e10754a827ba85acde7938a2-local-redis-redis-redis running
           ├─🧩 bitnami/redis:latest
-          ├─💾 /var/lib/monkd/volumes/redis/master -> /bitnami/redis/data
+          ├─💾 /var/lib/monkd/volumes/redis/leader -> /bitnami/redis/data
           └─🔌 open 1.1.1.1:6379 (0.0.0.0:6379) -> 6379
 
 💡 You can inspect and manage your above stack with these commands:

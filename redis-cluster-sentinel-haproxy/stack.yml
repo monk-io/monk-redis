@@ -6,9 +6,9 @@ stack:
   metadata:
     name: Redis Clustered with HAProxy
     description: |
-      A clustered Redis setup with one master and two slave nodes is a distributed system that allows for high availability and fault tolerance.
+      A clustered Redis setup with one leader and two follower nodes is a distributed system that allows for high availability and fault tolerance.
 
-      The master node is responsible for handling all write operations, while the slave nodes replicate the data from the master and handle read operations.
+      The leader node is responsible for handling all write operations, while the follower nodes replicate the data from the leader and handle read operations.
 
       HAProxy is used as a frontend to distribute incoming traffic across the nodes, ensuring that requests are evenly distributed and the system remains highly available. This setup provides a scalable and reliable solution for handling large amounts of data and traffic.
 
@@ -17,19 +17,19 @@ stack:
     icon: https://cdn.icon-icons.com/icons2/2415/PNG/512/redis_original_wordmark_logo_icon_146369.png
     version: 1.0
   runnable-list:
-    - redis-cluster-haproxy/redis-master
-    - redis-cluster-haproxy/redis-slave-1
-    - redis-cluster-haproxy/redis-slave-2
+    - redis-cluster-haproxy/redis-leader
+    - redis-cluster-haproxy/redis-follower-1
+    - redis-cluster-haproxy/redis-follower-2
     - redis-cluster-haproxy/sentinel
     - redis-cluster-haproxy/haproxy
   variables:
-    master_port:
+    leader_port:
       type: string
       value: 6387
-    slave-1_port:
+    follower-1_port:
       type: string
       value: 6388
-    slave-2_port:
+    follower-2_port:
       type: string
       value: 6389
     disable_commands:
