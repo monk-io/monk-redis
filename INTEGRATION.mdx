@@ -84,7 +84,7 @@ api:
   connections:
     cache:
       runnable: cache
-      service: redis
+      service: redis-svc
   variables:
     redis-host:
       value: <- connection-hostname("cache")
@@ -103,7 +103,7 @@ monk run myapp/api
 
 ## Ports and connectivity
 
-- Service: `redis` on TCP port `6379`
+- Service: `redis-svc` on TCP port `6379`
 - From other runnables in the same process group, use `connection-hostname("<connection-name>")` to resolve the Redis host.
 
 ## Persistence and configuration
